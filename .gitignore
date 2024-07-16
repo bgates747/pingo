@@ -1,3 +1,7 @@
+# our additions
+.DS_Store
+
+# what came with it
 Pingo.pro.user
 
 build
