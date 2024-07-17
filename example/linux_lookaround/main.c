@@ -137,6 +137,14 @@ int main() {
                 direction = (Vec3f){move_speed, 0, 0};
                 changed = true;
             }
+            if (key == XK_Page_Up) {
+                direction = (Vec3f){0, move_speed, 0};
+                changed = true;
+            }
+            if (key == XK_Page_Down) {
+                direction = (Vec3f){0, -move_speed, 0};
+                changed = true;
+            }
 
             if (changed) {
                 // Apply rotations to the camera rotation matrix
@@ -160,7 +168,7 @@ int main() {
                 printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / pi), phi * (180.0 / pi), gamma * (180.0 / pi));
 
                 renderer_render(&renderer);
-                
+
                 // Reset rotation angles for next frame
                 theta = 0;
                 phi = 0;
