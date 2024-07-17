@@ -92,66 +92,62 @@ int main() {
 
     while (1) {
         unsigned long frame_start = getMicroseconds();
-
-        while (XPending(dis)) {
-            XNextEvent(dis, &event);
-            if (event.type == KeyPress) {
-                KeySym key = XLookupKeysym(&event.xkey, 0);
-                // printf("Key pressed: %ld\n", key);
-                if (key == XK_Up) { // Up arrow
-                    theta -= rotation_speed;
-                } 
-                if (key == XK_Down) { // Down arrow
-                    theta += rotation_speed;
-                } 
-                if (key == XK_Right) { // Right arrow
-                    phi -= rotation_speed;
-                } 
-                if (key == XK_Left) { // Left arrow
-                    phi += rotation_speed;
-                } 
-                if (key == XK_q) { // Q key 
-                    gamma -= rotation_speed;
-                }
-                if (key == XK_e) { // E key
-                    gamma += rotation_speed;
-                }
-                if (key == XK_w) { // W key - move forward
-                    Vec3f forward = {0, 0, -move_speed};
-                    Mat4 rotateX = mat4RotateX(theta);
-                    Mat4 rotateY = mat4RotateY(phi);
-                    Mat4 rotateZ = mat4RotateZ(gamma);
-                    Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                    forward = mat4MultiplyVec3(&forward, &rotation);
-                    camera_position = vec3fsumV(camera_position, forward);
-                } 
-                if (key == XK_s) { // S key - move backward
-                    Vec3f backward = {0, 0, move_speed};
-                    Mat4 rotateX = mat4RotateX(theta);
-                    Mat4 rotateY = mat4RotateY(phi);
-                    Mat4 rotateZ = mat4RotateZ(gamma);
-                    Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                    backward = mat4MultiplyVec3(&backward, &rotation);
-                    camera_position = vec3fsumV(camera_position, backward);
-                } 
-                if (key == XK_a) { // A key - move left
-                    Vec3f left = {-move_speed, 0, 0};
-                    Mat4 rotateX = mat4RotateX(theta);
-                    Mat4 rotateY = mat4RotateY(phi);
-                    Mat4 rotateZ = mat4RotateZ(gamma);
-                    Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                    left = mat4MultiplyVec3(&left, &rotation);
-                    camera_position = vec3fsumV(camera_position, left);
-                } 
-                if (key == XK_d) { // D key - move right
-                    Vec3f right = {move_speed, 0, 0};
-                    Mat4 rotateX = mat4RotateX(theta);
-                    Mat4 rotateY = mat4RotateY(phi);
-                    Mat4 rotateZ = mat4RotateZ(gamma);
-                    Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                    right = mat4MultiplyVec3(&right, &rotation);
-                    camera_position = vec3fsumV(camera_position, right);
-                }
+        XNextEvent(dis, &event);
+        if (event.type == KeyPress) {
+            KeySym key = XLookupKeysym(&event.xkey, 0);
+            if (key == XK_Up) { // Up arrow
+                theta -= rotation_speed;
+            } 
+            if (key == XK_Down) { // Down arrow
+                theta += rotation_speed;
+            } 
+            if (key == XK_Right) { // Right arrow
+                phi -= rotation_speed;
+            } 
+            if (key == XK_Left) { // Left arrow
+                phi += rotation_speed;
+            } 
+            if (key == XK_q) { // Q key 
+                gamma -= rotation_speed;
+            }
+            if (key == XK_e) { // E key
+                gamma += rotation_speed;
+            }
+            if (key == XK_w) { // W key - move forward
+                Vec3f forward = {0, 0, -move_speed};
+                Mat4 rotateX = mat4RotateX(theta);
+                Mat4 rotateY = mat4RotateY(phi);
+                Mat4 rotateZ = mat4RotateZ(gamma);
+                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
+                forward = mat4MultiplyVec3(&forward, &rotation);
+                camera_position = vec3fsumV(camera_position, forward);
+            } 
+            if (key == XK_s) { // S key - move backward
+                Vec3f backward = {0, 0, move_speed};
+                Mat4 rotateX = mat4RotateX(theta);
+                Mat4 rotateY = mat4RotateY(phi);
+                Mat4 rotateZ = mat4RotateZ(gamma);
+                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
+                backward = mat4MultiplyVec3(&backward, &rotation);
+                camera_position = vec3fsumV(camera_position, backward);
+            } 
+            if (key == XK_a) { // A key - move left
+                Vec3f left = {-move_speed, 0, 0};
+                Mat4 rotateX = mat4RotateX(theta);
+                Mat4 rotateY = mat4RotateY(phi);
+                Mat4 rotateZ = mat4RotateZ(gamma);
+                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
+                left = mat4MultiplyVec3(&left, &rotation);
+                camera_position = vec3fsumV(camera_position, left);
+            } 
+            if (key == XK_d) { // D key - move right
+                Vec3f right = {move_speed, 0, 0};
+                Mat4 rotateX = mat4RotateX(theta);
+                Mat4 rotateY = mat4RotateY(phi);
+                Mat4 rotateZ = mat4RotateZ(gamma);
+                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
+                right = mat4MultiplyVec3(&right, &rotation);
+                camera_position = vec3fsumV(camera_position, right);
             }
         }
 
