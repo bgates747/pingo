@@ -113,11 +113,11 @@ int main() {
                 changed = true;
             }
             if (key == XK_q) {
-                gamma = -rotation_speed;
+                gamma = rotation_speed;
                 changed = true;
             }
             if (key == XK_e) {
-                gamma = rotation_speed;
+                gamma = -rotation_speed;
                 changed = true;
             }
             Vec3f direction = {0, 0, 0};
