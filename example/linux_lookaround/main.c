@@ -50,28 +50,28 @@ unsigned long getMicroseconds() {
 float pi = 3.14159265359;
 
 int main() {
-    Pixel * image = loadTexture("assets/viking.rgba", (Vec2i){1024, 1024});
-    
+    Pixel *image = loadTexture("assets/viking.rgba", (Vec2i){1024, 1024});
+
     Texture texture;
     texture_init(&texture, (Vec2i){1024, 1024}, image);
-    
+
     Material material;
     material_init(&material, &texture);
-    
+
     Object object;
     object_init(&object, &viking_mesh, &material);
-    
+
     Entity root_entity;
     entity_init(&root_entity, (Renderable*)&object, mat4Identity());
-    
+
     Vec2i size = {640, 480};
     LinuxWindowBackend backend;
     linuxWindowBackendInit(&backend, size);
-    
+
     Renderer renderer;
     renderer_init(&renderer, size, (Backend*)&backend);
     renderer_set_root_renderable(&renderer, (Renderable*)&root_entity);
-    
+
     float phi = 0;
     float theta = 0;
     float gamma = 0;
@@ -79,9 +79,7 @@ int main() {
     float move_speed = 3.0f;
     float rotation_speed = 0.05f;
 
-    renderer.camera_projection = mat4Perspective(3, 50.0, (float) size.x / (float) size.y, 0.1);
-
-    renderer.camera_view = mat4Translate(camera_position);
+    renderer.camera_projection = mat4Perspective(3, 50.0, (float)size.x / (float)size.y, 0.1);
 
     XEvent event;
 
@@ -95,74 +93,68 @@ int main() {
         XNextEvent(dis, &event);
         if (event.type == KeyPress) {
             KeySym key = XLookupKeysym(&event.xkey, 0);
-            if (key == XK_Up) { // Up arrow
+            if (key == XK_Up) {
                 theta -= rotation_speed;
-            } 
-            if (key == XK_Down) { // Down arrow
+            }
+            if (key == XK_Down) {
                 theta += rotation_speed;
-            } 
-            if (key == XK_Right) { // Right arrow
+            }
+            if (key == XK_Right) {
                 phi -= rotation_speed;
-            } 
-            if (key == XK_Left) { // Left arrow
+            }
+            if (key == XK_Left) {
                 phi += rotation_speed;
-            } 
-            if (key == XK_q) { // Q key 
+            }
+            if (key == XK_q) {
                 gamma -= rotation_speed;
             }
-            if (key == XK_e) { // E key
+            if (key == XK_e) {
                 gamma += rotation_speed;
             }
-            if (key == XK_w) { // W key - move forward
-                Vec3f forward = {0, 0, -move_speed};
-                Mat4 rotateX = mat4RotateX(theta);
-                Mat4 rotateY = mat4RotateY(phi);
-                Mat4 rotateZ = mat4RotateZ(gamma);
-                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                forward = mat4MultiplyVec3(&forward, &rotation);
-                camera_position = vec3fsumV(camera_position, forward);
-            } 
-            if (key == XK_s) { // S key - move backward
-                Vec3f backward = {0, 0, move_speed};
-                Mat4 rotateX = mat4RotateX(theta);
-                Mat4 rotateY = mat4RotateY(phi);
-                Mat4 rotateZ = mat4RotateZ(gamma);
-                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                backward = mat4MultiplyVec3(&backward, &rotation);
-                camera_position = vec3fsumV(camera_position, backward);
-            } 
-            if (key == XK_a) { // A key - move left
-                Vec3f left = {-move_speed, 0, 0};
-                Mat4 rotateX = mat4RotateX(theta);
-                Mat4 rotateY = mat4RotateY(phi);
-                Mat4 rotateZ = mat4RotateZ(gamma);
-                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                left = mat4MultiplyVec3(&left, &rotation);
-                camera_position = vec3fsumV(camera_position, left);
-            } 
-            if (key == XK_d) { // D key - move right
-                Vec3f right = {move_speed, 0, 0};
-                Mat4 rotateX = mat4RotateX(theta);
-                Mat4 rotateY = mat4RotateY(phi);
-                Mat4 rotateZ = mat4RotateZ(gamma);
-                Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-                right = mat4MultiplyVec3(&right, &rotation);
-                camera_position = vec3fsumV(camera_position, right);
+            Vec3f direction = {0, 0, 0};
+            if (key == XK_w) {
+                direction = (Vec3f){0, 0, -move_speed};
             }
+            if (key == XK_s) {
+                direction = (Vec3f){0, 0, move_speed};
+            }
+            if (key == XK_a) {
+                direction = (Vec3f){-move_speed, 0, 0};
+            }
+            if (key == XK_d) {
+                direction = (Vec3f){move_speed, 0, 0};
+            }
+
+            Mat4 rotateX = mat4RotateX(theta);
+            Mat4 rotateY = mat4RotateY(phi);
+            Mat4 rotateZ = mat4RotateZ(gamma);
+
+            Mat4 temp_rotation;
+            Mat4 rotation;
+            temp_rotation = mat4MultiplyM(&rotateY, &rotateX);
+            rotation = mat4MultiplyM(&rotateZ, &temp_rotation);
+
+            direction = mat4MultiplyVec3(&direction, &rotation);  // Swapped arguments
+            camera_position = vec3fsumV(camera_position, direction);
         }
 
         Mat4 rotateX = mat4RotateX(theta);
         Mat4 rotateY = mat4RotateY(phi);
-        Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX); // Note the order
+        Mat4 rotateZ = mat4RotateZ(gamma);
+
+        Mat4 temp_rotation;
+        Mat4 rotation;
+        temp_rotation = mat4MultiplyM(&rotateY, &rotateX);
+        rotation = mat4MultiplyM(&rotateZ, &temp_rotation);
+
+        Mat4 translation = mat4Translate(camera_position);
+        renderer.camera_view = mat4MultiplyM(&rotation, &translation);
+
         printf("Camera position: %f %f %f", camera_position.x, camera_position.y, camera_position.z);
         printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / pi), phi * (180.0 / pi), gamma * (180.0 / pi));
 
-        Mat4 translation = mat4Translate(camera_position);
-        renderer.camera_view = mat4MultiplyM(&rotation, &translation); // Apply rotation first, then translation
-        
-        // root_entity.transform = mat4Identity(); // No need to transform the object itself
         renderer_render(&renderer);
-        
+
         unsigned long frame_end = getMicroseconds();
         unsigned long frame_duration = frame_end - frame_start;
 
@@ -170,6 +162,6 @@ int main() {
             usleep(target_frame_duration - frame_duration);
         }
     }
-    
+
     return 0;
 }
