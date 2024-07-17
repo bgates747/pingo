@@ -92,68 +92,72 @@ int main() {
         unsigned long frame_start = getMicroseconds();
         XNextEvent(dis, &event);
         if (event.type == KeyPress) {
+            bool changed = false;
             KeySym key = XLookupKeysym(&event.xkey, 0);
             if (key == XK_Up) {
                 theta -= rotation_speed;
+                changed = true;
             }
             if (key == XK_Down) {
                 theta += rotation_speed;
+                changed = true;
             }
             if (key == XK_Right) {
                 phi -= rotation_speed;
+                changed = true;
             }
             if (key == XK_Left) {
                 phi += rotation_speed;
+                changed = true;
             }
             if (key == XK_q) {
                 gamma -= rotation_speed;
+                changed = true;
             }
             if (key == XK_e) {
                 gamma += rotation_speed;
+                changed = true;
             }
             Vec3f direction = {0, 0, 0};
             if (key == XK_w) {
                 direction = (Vec3f){0, 0, -move_speed};
+                changed = true;
             }
             if (key == XK_s) {
                 direction = (Vec3f){0, 0, move_speed};
+                changed = true;
             }
             if (key == XK_a) {
                 direction = (Vec3f){-move_speed, 0, 0};
+                changed = true;
             }
             if (key == XK_d) {
                 direction = (Vec3f){move_speed, 0, 0};
+                changed = true;
             }
 
-            Mat4 rotateX = mat4RotateX(theta);
-            Mat4 rotateY = mat4RotateY(phi);
-            Mat4 rotateZ = mat4RotateZ(gamma);
+            if (changed) {
+                Mat4 rotateX = mat4RotateX(theta);
+                Mat4 rotateY = mat4RotateY(phi);
+                Mat4 rotateZ = mat4RotateZ(gamma);
 
-            Mat4 temp_rotation;
-            Mat4 rotation;
-            temp_rotation = mat4MultiplyM(&rotateY, &rotateX);
-            rotation = mat4MultiplyM(&rotateZ, &temp_rotation);
+                Mat4 temp_rotation;
+                Mat4 rotation;
+                temp_rotation = mat4MultiplyM(&rotateY, &rotateX);
+                rotation = mat4MultiplyM(&rotateZ, &temp_rotation);
 
-            direction = mat4MultiplyVec3(&direction, &rotation);  // Swapped arguments
-            camera_position = vec3fsumV(camera_position, direction);
+                direction = mat4MultiplyVec3(&direction, &rotation);
+                camera_position = vec3fsumV(camera_position, direction);
+
+                Mat4 translation = mat4Translate(camera_position);
+                renderer.camera_view = mat4MultiplyM(&rotation, &translation);
+
+                printf("Camera position: %f %f %f", camera_position.x, camera_position.y, camera_position.z);
+                printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / pi), phi * (180.0 / pi), gamma * (180.0 / pi));
+
+                renderer_render(&renderer);
+            }
         }
-
-        Mat4 rotateX = mat4RotateX(theta);
-        Mat4 rotateY = mat4RotateY(phi);
-        Mat4 rotateZ = mat4RotateZ(gamma);
-
-        Mat4 temp_rotation;
-        Mat4 rotation;
-        temp_rotation = mat4MultiplyM(&rotateY, &rotateX);
-        rotation = mat4MultiplyM(&rotateZ, &temp_rotation);
-
-        Mat4 translation = mat4Translate(camera_position);
-        renderer.camera_view = mat4MultiplyM(&rotation, &translation);
-
-        printf("Camera position: %f %f %f", camera_position.x, camera_position.y, camera_position.z);
-        printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / pi), phi * (180.0 / pi), gamma * (180.0 / pi));
-
-        renderer_render(&renderer);
 
         unsigned long frame_end = getMicroseconds();
         unsigned long frame_duration = frame_end - frame_start;
