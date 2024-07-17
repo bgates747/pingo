@@ -81,6 +81,8 @@ int main() {
 
     renderer.camera_projection = mat4Perspective(3, 50.0, (float)size.x / (float)size.y, 0.1);
 
+    Mat4 camera_rotation = mat4Identity(); // Initialize the camera rotation matrix
+
     XEvent event;
 
     XSelectInput(dis, win, KeyPressMask | KeyReleaseMask);
@@ -95,27 +97,27 @@ int main() {
             bool changed = false;
             KeySym key = XLookupKeysym(&event.xkey, 0);
             if (key == XK_Up) {
-                theta -= rotation_speed;
+                theta = -rotation_speed;
                 changed = true;
             }
             if (key == XK_Down) {
-                theta += rotation_speed;
+                theta = rotation_speed;
                 changed = true;
             }
             if (key == XK_Right) {
-                phi -= rotation_speed;
+                phi = -rotation_speed;
                 changed = true;
             }
             if (key == XK_Left) {
-                phi += rotation_speed;
+                phi = rotation_speed;
                 changed = true;
             }
             if (key == XK_q) {
-                gamma -= rotation_speed;
+                gamma = -rotation_speed;
                 changed = true;
             }
             if (key == XK_e) {
-                gamma += rotation_speed;
+                gamma = rotation_speed;
                 changed = true;
             }
             Vec3f direction = {0, 0, 0};
@@ -137,25 +139,32 @@ int main() {
             }
 
             if (changed) {
+                // Apply rotations to the camera rotation matrix
                 Mat4 rotateX = mat4RotateX(theta);
                 Mat4 rotateY = mat4RotateY(phi);
                 Mat4 rotateZ = mat4RotateZ(gamma);
 
-                Mat4 temp_rotation;
-                Mat4 rotation;
-                temp_rotation = mat4MultiplyM(&rotateY, &rotateX);
-                rotation = mat4MultiplyM(&rotateZ, &temp_rotation);
+                Mat4 new_rotation;
+                new_rotation = mat4MultiplyM(&rotateY, &rotateX);
+                new_rotation = mat4MultiplyM(&rotateZ, &new_rotation);
 
-                direction = mat4MultiplyVec3(&direction, &rotation);
+                camera_rotation = mat4MultiplyM(&new_rotation, &camera_rotation); // Combine new rotation with the current camera rotation
+
+                direction = mat4MultiplyVec3(&direction, &camera_rotation); // Transform direction by the camera's rotation matrix
                 camera_position = vec3fsumV(camera_position, direction);
 
                 Mat4 translation = mat4Translate(camera_position);
-                renderer.camera_view = mat4MultiplyM(&rotation, &translation);
+                renderer.camera_view = mat4MultiplyM(&camera_rotation, &translation); // Combine rotation and translation for the view matrix
 
                 printf("Camera position: %f %f %f", camera_position.x, camera_position.y, camera_position.z);
                 printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / pi), phi * (180.0 / pi), gamma * (180.0 / pi));
 
                 renderer_render(&renderer);
+                
+                // Reset rotation angles for next frame
+                theta = 0;
+                phi = 0;
+                gamma = 0;
             }
         }
 
