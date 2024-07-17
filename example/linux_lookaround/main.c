@@ -10,7 +10,6 @@
 #include "render/pixel.h"
 #include "render/renderer.h"
 
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -47,6 +46,8 @@ unsigned long getMicroseconds() {
     gettimeofday(&tv, NULL);
     return tv.tv_sec * 1000000 + tv.tv_usec;
 }
+
+float pi = 3.14159265359;
 
 int main() {
     Pixel * image = loadTexture("assets/viking.rgba", (Vec2i){1024, 1024});
@@ -158,7 +159,7 @@ int main() {
         Mat4 rotateY = mat4RotateY(phi);
         Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX); // Note the order
         printf("Camera position: %f %f %f", camera_position.x, camera_position.y, camera_position.z);
-        printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / M_PI), phi * (180.0 / M_PI), gamma * (180.0 / M_PI));
+        printf(" rotation: %.1f %.1f %.1f\n", theta * (180.0 / pi), phi * (180.0 / pi), gamma * (180.0 / pi));
 
         Mat4 translation = mat4Translate(camera_position);
         renderer.camera_view = mat4MultiplyM(&rotation, &translation); // Apply rotation first, then translation
