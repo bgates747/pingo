@@ -170,75 +170,62 @@ int main() {
         unsigned long frame_start = getMicroseconds();
         XNextEvent(dis, &event);
         if (event.type == KeyPress) {
-            bool changed = false;
             KeySym key = XLookupKeysym(&event.xkey, 0);
             Vec3f direction = {0, 0, 0};
             Vec3f rotation = {0, 0, 0};
             if (key == XK_Up) {
                 rotation = (Vec3f){-rotation_speed, 0, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_Down) {
                 rotation = (Vec3f){rotation_speed, 0, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_Right) {
                 rotation = (Vec3f){0, -rotation_speed, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_Left) {
                 rotation = (Vec3f){0, rotation_speed, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_q) {
                 rotation = (Vec3f){0, 0, rotation_speed};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_e) {
                 rotation = (Vec3f){0, 0, -rotation_speed};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_w) {
                 direction = (Vec3f){0, 0, -move_speed};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_s) {
                 direction = (Vec3f){0, 0, move_speed};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_a) {
                 direction = (Vec3f){-move_speed, 0, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_d) {
                 direction = (Vec3f){move_speed, 0, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_Page_Up) {
                 direction = (Vec3f){0, move_speed, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_Page_Down) {
                 direction = (Vec3f){0, -move_speed, 0};
                 m_camera.m_modified = true;
-                changed = true;
             }
             if (key == XK_Escape) {
                 running = false;
             }
 
-            if (changed) {
+            if (m_camera.m_modified) {
                 compute_transformation_matrix_local(&m_camera, rotation, direction);
                 renderer.camera_view = m_camera.m_transform;
                 renderer_render(&renderer);
