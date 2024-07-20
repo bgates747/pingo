@@ -245,8 +245,9 @@ int main() {
                 float angle_x = asin(-m_camera.m_transform.elements[9]);
                 float angle_y = atan2(m_camera.m_transform.elements[8], m_camera.m_transform.elements[10]);
                 float angle_z = atan2(m_camera.m_transform.elements[1], m_camera.m_transform.elements[5]);
-                printf("Camera position: %.1f %.1f %.1f\n", m_camera.m_translation.x, m_camera.m_translation.y, m_camera.m_translation.z);
-                printf("Camera rotation: %.1f %.1f %.1f\n", angle_x * (180.0 / pi), angle_y * (180.0 / pi), angle_z * (180.0 / pi));
+                // debug print the camera position and rotation angles to the console
+                printf("Camera position: %.1f %.1f %.1f", m_camera.m_translation.x, m_camera.m_translation.y, m_camera.m_translation.z);
+                printf(" rotation: %.1f %.1f %.1f\n", angle_x * (180.0 / pi), angle_y * (180.0 / pi), angle_z * (180.0 / pi));
             }
         }
 
