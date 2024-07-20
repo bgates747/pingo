@@ -17,6 +17,9 @@
 #include <X11/keysym.h>
 #include <sys/time.h>
 
+#include <string.h>
+#include <math.h>
+
 typedef struct {
     Vec3f m_scale;
     Vec3f m_rotation;
