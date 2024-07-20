@@ -79,6 +79,7 @@ int main() {
     float theta = 0;
     float gamma = 0;
     Vec3f camera_position = {0, 8, 60}; // Initial camera position
+    Vec3f camera_angle = {0, 0, 0}; // Initial camera rotation angles
     float move_speed = 1.0f;
     float rotation_speed = 1.0f * pi / 180.0f;
 
@@ -92,12 +93,13 @@ int main() {
 
     const int target_fps = 60;
     const unsigned long target_frame_duration = 1000000 / target_fps;
+    bool running = true;
+    bool changed = true;
 
-    while (1) {
+    while (running) {
         unsigned long frame_start = getMicroseconds();
         XNextEvent(dis, &event);
         if (event.type == KeyPress) {
-            bool changed = false;
             KeySym key = XLookupKeysym(&event.xkey, 0);
             if (key == XK_Up) {
                 theta = -rotation_speed;
@@ -148,6 +150,9 @@ int main() {
                 direction = (Vec3f){0, -move_speed, 0};
                 changed = true;
             }
+            if (key == XK_Escape) {
+                running = false;
+            }
 
             if (changed) {
                 // Apply rotations to the camera rotation matrix
@@ -171,7 +176,6 @@ int main() {
                 renderer_render(&renderer);
 
                 // extract the new rotation angles from the rotation matrix
-                Vec3f camera_angle = {0, 0, 0};
                 camera_angle.x = asin(-camera_rotation.elements[9]);
                 camera_angle.y = atan2(camera_rotation.elements[8], camera_rotation.elements[10]);
                 camera_angle.z = atan2(camera_rotation.elements[1], camera_rotation.elements[5]); 
