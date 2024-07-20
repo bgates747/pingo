@@ -17,6 +17,9 @@
 #include <X11/keysym.h>
 #include <sys/time.h>
 
+#include <string.h>
+#include <math.h>
+
 extern Display *dis;
 extern Window win;
 
@@ -157,11 +160,6 @@ int main() {
                 new_rotation = mat4MultiplyM(&rotateZ, &new_rotation);
 
                 camera_rotation = mat4MultiplyM(&new_rotation, &camera_rotation); // Combine new rotation with the current camera rotation
-                // extract the new rotation angles from the rotation matrix
-                Vec3f camera_angle = {0, 0, 0};
-                camera_angle.x = asin(-camera_rotation.elements[9]);
-                camera_angle.y = atan2(camera_rotation.elements[8], camera_rotation.elements[10]);
-                camera_angle.z = atan2(camera_rotation.elements[1], camera_rotation.elements[5]); 
 
                 direction = mat4MultiplyVec3(&direction, &camera_rotation); // Transform direction by the camera's rotation matrix
                 camera_position = vec3fsumV(camera_position, direction);
@@ -169,10 +167,18 @@ int main() {
                 Mat4 translation = mat4Translate(camera_position);
                 renderer.camera_view = mat4MultiplyM(&camera_rotation, &translation); // Combine rotation and translation for the view matrix
 
+                // Render the scene
+                renderer_render(&renderer);
+
+                // extract the new rotation angles from the rotation matrix
+                Vec3f camera_angle = {0, 0, 0};
+                camera_angle.x = asin(-camera_rotation.elements[9]);
+                camera_angle.y = atan2(camera_rotation.elements[8], camera_rotation.elements[10]);
+                camera_angle.z = atan2(camera_rotation.elements[1], camera_rotation.elements[5]); 
+
+                // debug print the camera position and rotation angles to the console
                 printf("Camera position: %.1f %.1f %.1f", camera_position.x, camera_position.y, camera_position.z);
                 printf(" rotation: %.1f %.1f %.1f\n", camera_angle.x * (180.0 / pi), camera_angle.y * (180.0 / pi), camera_angle.z * (180.0 / pi));
-
-                renderer_render(&renderer);
 
                 // Reset rotation angles for next frame
                 theta = 0;

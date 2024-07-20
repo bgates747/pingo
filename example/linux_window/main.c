@@ -65,6 +65,31 @@ void compute_transformation_matrix(Transformable *transformable, Vec3f delta_rot
     transformable->m_modified = false;
 }
 
+void compute_transformation_matrix_local(Transformable *transformable, Vec3f delta_rotation, Vec3f delta_translation) {
+    // Combine the additions into single operations using vec3fsumV
+    transformable->m_rotation = vec3fsumV(transformable->m_rotation, delta_rotation);
+    transformable->m_translation = vec3fsumV(transformable->m_translation, delta_translation);
+
+    transformable->m_transform = mat4Scale(transformable->m_scale);
+    if (transformable->m_rotation.x) {
+        Mat4 t = mat4RotateX(transformable->m_rotation.x);
+        transformable->m_transform = mat4MultiplyM(&transformable->m_transform, &t);
+    }
+    if (transformable->m_rotation.y) {
+        Mat4 t = mat4RotateY(transformable->m_rotation.y);
+        transformable->m_transform = mat4MultiplyM(&transformable->m_transform, &t);
+    }
+    if (transformable->m_rotation.z) {
+        Mat4 t = mat4RotateZ(transformable->m_rotation.z);
+        transformable->m_transform = mat4MultiplyM(&transformable->m_transform, &t);
+    }
+    if (transformable->m_translation.x || transformable->m_translation.y || transformable->m_translation.z) {
+        Mat4 t = mat4Translate(transformable->m_translation);
+        transformable->m_transform = mat4MultiplyM(&transformable->m_transform, &t);
+    }
+    transformable->m_modified = false;
+}
+
 extern Display *dis;
 extern Window win;
 
@@ -211,7 +236,7 @@ int main() {
             }
 
             if (changed) {
-                compute_transformation_matrix(&m_camera, rotation, direction);
+                compute_transformation_matrix_local(&m_camera, rotation, direction);
                 renderer.camera_view = m_camera.m_transform;
                 renderer_render(&renderer);
                 float angle_x = asin(-m_camera.m_transform.elements[9]);
