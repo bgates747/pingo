@@ -72,28 +72,6 @@ void initialize(Transformable *transformable) {
     initialize_scale(transformable);
 }
 
-void compute_transformation_matrix(Transformable *transformable, Vec3f delta_rotation, Vec3f delta_translation) {
-    // Apply rotations
-    Mat4 rotateX = mat4RotateX(delta_rotation.x);
-    Mat4 rotateY = mat4RotateY(delta_rotation.y);
-    Mat4 rotateZ = mat4RotateZ(delta_rotation.z);
-    Mat4 rotation = mat4MultiplyM(&rotateY, &rotateX);
-    rotation = mat4MultiplyM(&rotateZ, &rotation);
-    transformable->m_rotation = mat4MultiplyM(&rotation, &transformable->m_rotation);
-
-    // Apply translation
-    transformable->m_translation = vec3fsumV(transformable->m_translation, delta_translation);
-
-    // Compute the final transformation matrix
-    Mat4 scale = mat4Scale(transformable->m_scale);
-    Mat4 translation_matrix = mat4Translate(transformable->m_translation);
-    Mat4 rotation_matrix = transformable->m_rotation;
-    
-    // Ensure the rotation happens before translation
-    transformable->m_transform = mat4MultiplyM(&translation_matrix, &rotation_matrix);
-    transformable->m_transform = mat4MultiplyM(&transformable->m_transform, &scale);
-}
-
 void compute_transformation_matrix_local(Transformable *transformable, Vec3f delta_rotation, Vec3f delta_translation) {
     // Apply rotations to the camera rotation matrix
     Mat4 rotateX = mat4RotateX(delta_rotation.x);
