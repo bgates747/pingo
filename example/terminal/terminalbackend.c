@@ -12,15 +12,15 @@ Vec2i totalSize;
 PingoDepth * zetaBuffer;
 Pixel * frameBuffer;
 
-void terminal_backend_init_backend( Renderer * ren, BackEnd * backEnd, Vec4i _rect) {
+void terminal_backend_init_backend( Renderer * ren, Backend * backend, Vec4i _rect) {
 }
 
-void terminal_backend_beforeRender( Renderer * ren, BackEnd * backEnd) {
+void terminal_backend_beforeRender( Renderer * ren, Backend * backend) {
     // clear and move cursor to start point
     printf("\033[2J");
 }
 
-void terminal_backend_afterRender( Renderer * ren,  BackEnd * backEnd) {
+void terminal_backend_afterRender( Renderer * ren,  Backend * backend) {
     const char scale[] = "      ...,,,:::;;cc!!+*C##@";
     int charSize = sizeof(scale);
     for (int y = totalSize.y -1; y > 0; y-- ) {
@@ -39,11 +39,11 @@ void terminal_backend_afterRender( Renderer * ren,  BackEnd * backEnd) {
     }
 }
 
-Pixel * terminal_backend_getFrameBuffer( Renderer * ren,  BackEnd * backEnd) {
+Pixel * terminal_backend_getFrameBuffer( Renderer * ren,  Backend * backend) {
     return frameBuffer;
 }
 
-PingoDepth * terminal_backend_getZetaBuffer( Renderer * ren,  BackEnd * backEnd) {
+PingoDepth * terminal_backend_getZetaBuffer( Renderer * ren,  Backend * backend) {
     return zetaBuffer;
 }
 

@@ -39,11 +39,11 @@ Pixel * loadTexture(char * filename, Vec2i size) {
 
 int main(){
     Vec2i size = {1376, 768};
-    LinuxFramebufferBackEnd backend;
-    linuxFramebufferBackEndInit(&backend, size, "/dev/fb0");
+    LinuxFramebufferBackend backend;
+    linuxFramebufferBackendInit(&backend, size, "/dev/fb0");
 
     Renderer renderer;
-    rendererInit(&renderer, size,(BackEnd*) &backend );
+    rendererInit(&renderer, size,(Backend*) &backend );
     rendererSetCamera(&renderer,(Vec4i){0,0,size.x,size.y});
 
     Scene s;

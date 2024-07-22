@@ -19,28 +19,28 @@ Vec2i totalSize;
 PingoDepth * zetaBuffer;
 Pixel * frameBuffer;
 
-void init( Renderer * ren, BackEnd * backEnd, Vec4i _rect) {
+void init( Renderer * ren, Backend * backend, Vec4i _rect) {
     rect = _rect;
 
 }
 
-void beforeRender( Renderer * ren, BackEnd * backEnd) {
-    LinuxFramebufferBackEnd * this = (LinuxFramebufferBackEnd *) backEnd;
+void beforeRender( Renderer * ren, Backend * backend) {
+    LinuxFramebufferBackend * this = (LinuxFramebufferBackend *) backend;
 }
 
-void afterRender( Renderer * ren,  BackEnd * backEnd) {
+void afterRender( Renderer * ren,  Backend * backend) {
 
 }
 
-Pixel * getFrameBuffer( Renderer * ren,  BackEnd * backEnd) {
+Pixel * getFrameBuffer( Renderer * ren,  Backend * backend) {
     return frameBuffer;
 }
 
-PingoDepth * getZetaBuffer( Renderer * ren,  BackEnd * backEnd) {
+PingoDepth * getZetaBuffer( Renderer * ren,  Backend * backend) {
     return zetaBuffer;
 }
 
-void linuxFramebufferBackEndInit( LinuxFramebufferBackEnd * this, Vec2i size, const char * framebufferDevice) {
+void linuxFramebufferBackendInit( LinuxFramebufferBackend * this, Vec2i size, const char * framebufferDevice) {
     totalSize = size;
     this->backend.init = &init;
     this->backend.beforeRender = &beforeRender;

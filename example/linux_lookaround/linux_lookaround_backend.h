@@ -7,9 +7,9 @@
 typedef struct Pixel Pixel;
 
 typedef  struct {
-    BackEnd backend;
+    Backend backend;
     Vec2i size;
-} LinuxWindowBackEnd;
+} LinuxWindowBackend;
 
 
-void linuxWindowBackEndInit(LinuxWindowBackEnd * thiss, Vec2i size);
+void linuxWindowBackendInit(LinuxWindowBackend * thiss, Vec2i size);

@@ -21,7 +21,7 @@ int main(){
     terminal_backend_init(&backend, size);
 
     Renderer renderer;
-    rendererInit(&renderer, size,(BackEnd*) &backend );
+    rendererInit(&renderer, size,(Backend*) &backend );
     rendererSetCamera(&renderer,(Vec4i){0,0,size.x,size.y});
 
     Scene s;

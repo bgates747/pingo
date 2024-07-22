@@ -82,8 +82,8 @@ int orient2d( Vec2i a,  Vec2i b,  Vec2i c)
 
 void backendDrawPixel (Renderer * r, Texture * f, Vec2i pos, Pixel color, float illumination) {
     //If backend spcifies something..
-    if (r->backEnd->drawPixel != 0)
-        r->backEnd->drawPixel(f, pos, color, illumination);
+    if (r->backend->drawPixel != 0)
+        r->backend->drawPixel(f, pos, color, illumination);
 
     //By default call this
     texture_draw(f, pos, pixelMul(color,illumination));
@@ -216,10 +216,10 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
                 if (depth < 0.0 || depth > 1.0)
                     continue;
 
-                if (depth_check(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1-depth ))
+                if (depth_check(r->backend->getZetaBuffer(r,r->backend), x + y * scrSize.x, 1-depth ))
                     continue;
 
-                depth_write(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1- depth );
+                depth_write(r->backend->getZetaBuffer(r,r->backend), x + y * scrSize.x, 1- depth );
 
                 if (o->material != 0) {
                     //Texture lookup
@@ -241,7 +241,7 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
     return 0;
 };
 
-int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
+int rendererInit(Renderer * r, Vec2i size, Backend * backend) {
     renderingFunctions[RENDERABLE_SPRITE] = & renderSprite;
     renderingFunctions[RENDERABLE_SCENE] = & renderScene;
     renderingFunctions[RENDERABLE_OBJECT] = & renderObject;
@@ -249,12 +249,12 @@ int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
     r->scene = 0;
     r->clear = 1;
     r->clearColor = PIXELBLACK;
-    r->backEnd = backEnd;
+    r->backend = backend;
 
-    r->backEnd->init(r, r->backEnd, (Vec4i) { 0, 0, 0, 0 });
+    r->backend->init(r, r->backend, (Vec4i) { 0, 0, 0, 0 });
 
     int e = 0;
-    e = texture_init( & (r->frameBuffer), size, backEnd->getFrameBuffer(r, backEnd));
+    e = texture_init( & (r->frameBuffer), size, backend->getFrameBuffer(r, backend));
     if (e) return e;
 
     return 0;
@@ -265,21 +265,21 @@ int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
 int rendererRender(Renderer * r) {
 
     int pixels = r->frameBuffer.size.x * r->frameBuffer.size.y;
-    memset(r->backEnd->getZetaBuffer(r,r->backEnd), 0, pixels * sizeof (PingoDepth));
+    memset(r->backend->getZetaBuffer(r,r->backend), 0, pixels * sizeof (PingoDepth));
 
-    r->backEnd->beforeRender(r, r->backEnd);
+    r->backend->beforeRender(r, r->backend);
 
     //get current framebuffe from backend
-    r->frameBuffer.frameBuffer = r->backEnd->getFrameBuffer(r, r->backEnd);
+    r->frameBuffer.frameBuffer = r->backend->getFrameBuffer(r, r->backend);
 
     //Clear draw buffer before rendering
     if (r->clear) {
-        memset(r->backEnd->getFrameBuffer(r,r->backEnd), 0, pixels * sizeof (Pixel));
+        memset(r->backend->getFrameBuffer(r,r->backend), 0, pixels * sizeof (Pixel));
     }
 
     renderScene(mat4Identity(), r, sceneAsRenderable(r->scene));
 
-    r->backEnd->afterRender(r, r->backEnd);
+    r->backend->afterRender(r, r->backend);
 
     return 0;
 }
@@ -294,7 +294,7 @@ int rendererSetScene(Renderer * r, Scene * s) {
 
 int rendererSetCamera(Renderer * r, Vec4i rect) {
     r->camera = rect;
-    r->backEnd->init(r, r->backEnd, rect);
+    r->backend->init(r, r->backend, rect);
     r->frameBuffer.size = (Vec2i) {
             rect.z, rect.w
 };

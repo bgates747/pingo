@@ -6,7 +6,7 @@
 #include "math/vec4.h"
 
 typedef struct Scene Scene;
-typedef struct BackEnd BackEnd;
+typedef struct Backend Backend;
 
 typedef struct Renderer{
     Vec4i camera;
@@ -19,13 +19,13 @@ typedef struct Renderer{
     Mat4 camera_projection;
     Mat4 camera_view;
 
-    BackEnd * backEnd;
+    Backend * backend;
 
 } Renderer;
 
 extern int rendererRender(Renderer *);
 
-extern int rendererInit(Renderer *, Vec2i size, struct BackEnd * backEnd);
+extern int rendererInit(Renderer *, Vec2i size, struct Backend * backend);
 
 extern int rendererSetScene(Renderer *r, Scene *s);
 

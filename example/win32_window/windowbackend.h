@@ -7,8 +7,8 @@ struct Renderer;
 
 typedef struct Pixel Pixel;
 typedef  struct {
-    BackEnd backend;
+    Backend backend;
     Vec2i size;
-} WindowBackEnd;
+} WindowBackend;
 
-void windowBackEndInit(WindowBackEnd * thiss, Vec2i size);
+void windowBackendInit(WindowBackend * thiss, Vec2i size);
