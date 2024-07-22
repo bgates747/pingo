@@ -22,7 +22,7 @@
 #include <stdbool.h>
 
 #define MAX_VERTEXES    100000
-#define MAX_TEX_COORDS  100000
+#define MAX_TEXTURE_COORDS  100000
 #define MAX_FACES       100000
 #define MAX_POLY_PTS    8
 
@@ -50,10 +50,10 @@ typedef struct {
 
 int num_files;
 int num_vertexes;
-int num_tex_coords;
+int num_texture_coords;
 int num_faces;
 Vertex vertexes[MAX_VERTEXES];
-TexCoord tex_coords[MAX_TEX_COORDS];
+TexCoord texture_coords[MAX_TEXTURE_COORDS];
 Face faces[MAX_FACES];
 char line[200];
 char obj_name[50];
@@ -62,11 +62,11 @@ char *cmd, *tkn;
 double x, y, z, u, v, a, max_coord;
 int iv, ivt, ivn, line_nbr;
 bool in_vertexes;
-bool in_tex_coords;
+bool in_texture_coords;
 bool in_faces;
 bool reverse_coords;
 bool dump_vertexes;
-bool dump_tex_coords;
+bool dump_texture_coords;
 bool dump_vertex_indexes;
 bool dump_tex_indexes;
 
@@ -110,10 +110,10 @@ void note_vertexes() {
     }
 }
 
-void note_tex_coords() {
-    if (in_tex_coords) {
-        printf("[%06i] End of %i texture coordinates\n", line_nbr-1, num_tex_coords);
-        in_tex_coords = false;
+void note_texture_coords() {
+    if (in_texture_coords) {
+        printf("[%06i] End of %i texture coordinates\n", line_nbr-1, num_texture_coords);
+        in_texture_coords = false;
     }
 }
 
@@ -149,10 +149,10 @@ int write_object(FILE* fout) {
     int ipt0, ipt1, ipt2;
     int cnt;
 
-    if (!num_vertexes && !num_tex_coords && !num_faces) return 0;
+    if (!num_vertexes && !num_texture_coords && !num_faces) return 0;
 
     note_vertexes();
-    note_tex_coords();
+    note_texture_coords();
     note_faces();
 
     start = ftell(fout);
@@ -174,13 +174,13 @@ int write_object(FILE* fout) {
     printf("Texture coordinates start at file position %lu\n", ftell(fout));
     write_uvalue(fout, zero); // dummy u
     write_uvalue(fout, zero); // dummy v
-    for (int i = 0; i < num_tex_coords; i++) {
-        TexCoord* t = &tex_coords[i];
+    for (int i = 0; i < num_texture_coords; i++) {
+        TexCoord* t = &texture_coords[i];
         write_tex_coord(fout, t->u);
         write_tex_coord(fout, t->v);
     }
     printf("Size of %i texture coordinates is %lu bytes\n",
-        num_tex_coords+1, ftell(fout)-start);
+        num_texture_coords+1, ftell(fout)-start);
 
     start = ftell(fout);
     printf("Vertex indexes start at file position %lu\n", ftell(fout));
@@ -267,7 +267,7 @@ int write_object(FILE* fout) {
     printf("Total file size is %lu bytes\n", ftell(fout));
 
     num_vertexes = 0;
-    num_tex_coords = 0;
+    num_texture_coords = 0;
     num_faces = 0;
     max_coord = -99999999.0;
     *obj_name = 0;
@@ -278,10 +278,10 @@ int write_object(FILE* fout) {
 int convert(FILE* fin, FILE* fout) {
     int rc;
     in_vertexes = false;
-    in_tex_coords = false;
+    in_texture_coords = false;
     in_faces = false;
     num_vertexes = 0;
-    num_tex_coords = 0;
+    num_texture_coords = 0;
     num_faces = 0;
     max_coord = -99999999.0;
     *obj_name = 0;
@@ -304,7 +304,7 @@ int convert(FILE* fin, FILE* fout) {
             printf("[%06i] Object: %s => %s\n", line_nbr, tkn, obj_name);
         } else if (!strcasecmp(cmd, "g")) {
             note_vertexes();
-            note_tex_coords();
+            note_texture_coords();
             note_faces();
             tkn = strtok(NULL, "\r\n");
             strcpy(grp_name, tkn);
@@ -338,25 +338,25 @@ int convert(FILE* fin, FILE* fout) {
             }
         } else if (!strcasecmp(cmd, "vt")) {
             note_vertexes();
-            if (!num_tex_coords) {
+            if (!num_texture_coords) {
                 printf("[%06i] Start of texture coordinates\n", line_nbr);
             }
             tkn = strtok(NULL, " ");
             u = atof(tkn);
             tkn = strtok(NULL, " ");
             v = atof(tkn);
-            if (num_tex_coords < MAX_TEX_COORDS) {
-                TexCoord* pt = &tex_coords[num_tex_coords++];
+            if (num_texture_coords < MAX_TEXTURE_COORDS) {
+                TexCoord* pt = &texture_coords[num_texture_coords++];
                 pt->u = u;
                 pt->v = v;
-                in_tex_coords = true;
+                in_texture_coords = true;
             } else {
                 printf("Too many texture coordinates!\n");
                 return 4;
             }
         } else if (!strcasecmp(cmd, "f")) {
             note_vertexes();
-            note_tex_coords();
+            note_texture_coords();
             if (!num_faces) {
                 printf("[%06i] Start of faces\n", line_nbr);
             }
@@ -371,7 +371,7 @@ int convert(FILE* fin, FILE* fout) {
         } else if (!strcasecmp(cmd, "usemtl")) {
         } else {
             note_vertexes();
-            note_tex_coords();
+            note_texture_coords();
             note_faces();
         }
     }
@@ -403,7 +403,7 @@ int main(int argc, const char* argv[]) {
     }
 
     if (!strcasecmp(argv[iarg], "-tc")) {
-        dump_tex_coords = true;
+        dump_texture_coords = true;
         iarg++;
     }
 
