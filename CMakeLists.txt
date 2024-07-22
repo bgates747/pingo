@@ -93,13 +93,13 @@ if (UNIX)
   # target_link_libraries(linux_terminal pingo assets)
 endif (UNIX)
 
-# Enable export of compile commands for dependency analysis
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# # Enable export of compile commands for dependency analysis
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Add a custom target to generate a dependency graph
-add_custom_target(dep-graph ALL
-    COMMAND ${CMAKE_COMMAND} --graphviz=dependency-graph.dot ${CMAKE_BINARY_DIR}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Generating dependency graph"
-)
+# # Add a custom target to generate a dependency graph
+# add_custom_target(dep-graph ALL
+#     COMMAND ${CMAKE_COMMAND} --graphviz=dependency-graph.dot ${CMAKE_BINARY_DIR}
+#     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#     COMMENT "Generating dependency graph"
+# )
 
