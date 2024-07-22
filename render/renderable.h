@@ -5,7 +5,7 @@
 /**
  * @brief Forward declaration of the Renderer structure.
  */
-typedef struct tag_Renderer Renderer;
+typedef struct Renderer Renderer;
 
 /**
  * @brief Enum representing different types of renderable objects.

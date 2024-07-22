@@ -6,19 +6,19 @@
 #define ZBUFFER32 // [ZBUFFER32 | ZBUFFER16 | ZBUFFER8]
 
 #ifdef ZBUFFER32
-typedef struct tag_PingoDepth {
+typedef struct PingoDepth {
     uint32_t d;
 } PingoDepth;
 #endif
 
 #ifdef ZBUFFER16
-typedef struct tag_PingoDepth {
+typedef struct PingoDepth {
     uint16_t d;
 } PingoDepth;
 #endif
 
 #ifdef ZBUFFER8
-typedef struct tag_PingoDepth {
+typedef struct PingoDepth {
     uint8_t d;
 } PingoDepth;
 #endif

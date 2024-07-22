@@ -5,13 +5,13 @@
 #include "pixel.h"
 #include "../math/vec4.h"
 
-typedef struct tag_Scene Scene;
-typedef struct tag_Backend Backend;
+typedef struct Scene Scene;
+typedef struct Backend Backend;
 
 /**
  * @brief Represents a renderer responsible for rendering scenes.
  */
-typedef struct tag_Renderer {
+typedef struct Renderer {
     Vec4i camera;             ///< Camera viewport.
     Scene *scene;             ///< Pointer to the scene to be rendered.
 
@@ -42,7 +42,7 @@ extern int rendererRender(Renderer *renderer);
  * @param backend Pointer to the backend used for rendering.
  * @return 0 on success.
  */
-extern int rendererInit(Renderer *renderer, Vec2i size, struct tag_Backend *backend);
+extern int rendererInit(Renderer *renderer, Vec2i size, struct Backend *backend);
 
 /**
  * @brief Sets the scene to be rendered by the renderer.

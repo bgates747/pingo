@@ -14,7 +14,7 @@ extern "C" {
 /**
  * @brief Represents a scene containing multiple renderable objects.
  */
-typedef struct tag_Scene {
+typedef struct Scene {
     uint8_t numberOfRenderables; ///< Number of renderables in the scene.
     Renderable renderables[MAX_SCENE_RENDERABLES]; ///< Array of renderables in the scene.
     Mat4 transform; ///< Transformation matrix for the scene.

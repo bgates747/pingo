@@ -8,13 +8,13 @@
 /**
  * @brief Provides a common interface to multiple graphical backends.
  */
-typedef struct tag_Renderer Renderer;
-typedef struct tag_PingoDepth PingoDepth;
+typedef struct Renderer Renderer;
+typedef struct PingoDepth PingoDepth;
 
 /**
  * @brief Structure representing a graphical backend.
  */
-typedef struct tag_Backend {
+typedef struct Backend {
     /**
      * @brief Called on initialization and re-initialization.
      * 
@@ -22,7 +22,7 @@ typedef struct tag_Backend {
      * @param backend Pointer to the backend.
      * @param rect The rectangle area.
      */
-    void (*init)(Renderer *, struct tag_Backend *, Vec4i rect);
+    void (*init)(Renderer *, struct Backend *, Vec4i rect);
 
     /**
      * @brief Called before starting rendering.
@@ -30,7 +30,7 @@ typedef struct tag_Backend {
      * @param renderer Pointer to the renderer.
      * @param backend Pointer to the backend.
      */
-    void (*beforeRender)(Renderer *, struct tag_Backend *);
+    void (*beforeRender)(Renderer *, struct Backend *);
 
     /**
      * @brief Called after having finished a render.
@@ -38,7 +38,7 @@ typedef struct tag_Backend {
      * @param renderer Pointer to the renderer.
      * @param backend Pointer to the backend.
      */
-    void (*afterRender)(Renderer *, struct tag_Backend *);
+    void (*afterRender)(Renderer *, struct Backend *);
 
     /**
      * @brief Should return the address of the framebuffer (height * width * sizeof(Pixel)).
@@ -47,7 +47,7 @@ typedef struct tag_Backend {
      * @param backend Pointer to the backend.
      * @return Pointer to the framebuffer.
      */
-    Pixel * (*getFramebuffer)(Renderer *, struct tag_Backend *);
+    Pixel * (*getFramebuffer)(Renderer *, struct Backend *);
 
     /**
      * @brief Handle backend specific final framebuffer draw (can apply lighting in a different way if needed).
@@ -66,7 +66,7 @@ typedef struct tag_Backend {
      * @param backend Pointer to the backend.
      * @return Pointer to the zeta buffer.
      */
-    PingoDepth * (*getZetaBuffer)(Renderer *, struct tag_Backend *);
+    PingoDepth * (*getZetaBuffer)(Renderer *, struct Backend *);
 
     /**
      * @brief Allows for referencing client-custom data structure.
