@@ -61,7 +61,7 @@ add_library(assets SHARED ${assets_src})
 target_link_libraries(assets pingo m)
 
 # Examples sources
-# file(GLOB_RECURSE linux_window_src example/linux_window/*.h example/linux_window/*.c)
+file(GLOB_RECURSE linux_window_src example/linux_window/*.h example/linux_window/*.c)
 file(GLOB_RECURSE linux_lookaround_src example/linux_lookaround/*.h example/linux_lookaround/*.c)
 # file(GLOB_RECURSE linux_framebuffer_src example/linux_framebuffer/*.h example/linux_framebuffer/*.c)
 # file(GLOB_RECURSE terminal_src example/terminal/*.h example/terminal/*.c)
@@ -78,9 +78,9 @@ include_directories(./)
 # endif (WIN32)
 
 if (UNIX)
-  # add_executable(linux_window ${linux_window_src})
-  # target_link_libraries(linux_window pingo assets X11)
-  # configure_file(${CMAKE_SOURCE_DIR}/assets/viking.rgba ${CMAKE_BINARY_DIR}/assets/viking.rgba COPYONLY)
+  add_executable(linux_window ${linux_window_src})
+  target_link_libraries(linux_window pingo assets X11)
+  configure_file(${CMAKE_SOURCE_DIR}/assets/viking.rgba ${CMAKE_BINARY_DIR}/assets/viking.rgba COPYONLY)
 
   add_executable(linux_lookaround ${linux_lookaround_src})
   target_link_libraries(linux_lookaround pingo assets X11)

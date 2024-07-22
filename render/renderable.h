@@ -20,7 +20,7 @@ typedef enum {
 /**
  * @brief Structure representing a renderable object.
  */
-typedef struct {
+typedef struct Renderable {
     RenderableType renderableType;
     void *impl;
 } Renderable;

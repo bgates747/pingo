@@ -6,7 +6,7 @@
 
 typedef struct Pixel Pixel;
 
-typedef  struct {
+typedef struct {
     Backend backend;
     Vec2i size;
 } LinuxFramebufferBackend;

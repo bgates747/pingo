@@ -1,18 +1,19 @@
-#include "math/mat4.h"
-#include "assets/viking.h"
-#include "linux_window_backend.h"
-
-#include "render/entity.h"
-#include "render/material.h"
-#include "render/mesh.h"
-#include "render/object.h"
-#include "render/pixel.h"
-#include "render/renderer.h"
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include "render/material.h"
+#include "render/mesh.h"
+#include "render/object.h"
+#include "render/pixel.h"
+#include "render/renderer.h"
+#include "render/scene.h"
+
+#include "linux_window_backend.h"
+
+#include "assets/viking.h"
 
 
 Pixel * loadTexture(char * filename, Vec2i size) {
@@ -37,41 +38,56 @@ Pixel * loadTexture(char * filename, Vec2i size) {
 }
 
 int main(){
-
-    Pixel * image = loadTexture("assets/viking.rgba", (Vec2i){1024,1024});
-
-    Texture texture;
-    texture_init(&texture, (Vec2i){1024, 1024}, image);
-
-    Material material;
-    material_init(&material, &texture);
-
-    Object object;
-    object_init(&object, &viking_mesh, &material);
-
-    Entity root_entity;
-    entity_init(&root_entity, (Renderable*)&object, mat4Identity());
-
-
     Vec2i size = {640, 480};
+
     LinuxWindowBackend backend;
     linuxWindowBackendInit(&backend, size);
 
     Renderer renderer;
-    renderer_init(&renderer, size, (Backend*)&backend );
-    renderer_set_root_renderable(&renderer, (Renderable*)&root_entity);
+    rendererInit(&renderer, size,(Backend*) &backend );
+    rendererSetCamera(&renderer,(Vec4i){0,0,size.x,size.y});
+
+    Scene s;
+    sceneInit(&s);
+    rendererSetScene(&renderer, &s);
+
+    Object object;
+    object.mesh = &viking_mesh;
+
+    Pixel * image = loadTexture("assets/viking.rgba", (Vec2i){1024,1024});
+	Texture tex;
+	texture_init(&tex, (Vec2i){1024, 1024},image);
+	Material m;
+	m.texture = &tex;
+	object.material = &m;
+
+    sceneAddRenderable(&s, object_as_renderable(&object));
 
     float phi = 0;
     Mat4 t;
 
-    renderer.camera_projection = mat4Perspective(3, 50.0, (float) size.x / (float) size.y, 0.1);
+	while (1) {
+        // PROJECTION MATRIX - Defines the type of projection used
+        renderer.camera_projection = mat4Perspective( 1, 2500.0,(float)size.x / (float)size.y, 0.6);
 
-    renderer.camera_view = mat4Translate((Vec3f){0, 0, 0});
+        //VIEW MATRIX - Defines position and orientation of the "camera"
+        Mat4 v = mat4Translate((Vec3f) { 0,2,-35});
 
-    while (1) {
-        root_entity.transform = mat4Translate((Vec3f){0, 0, -30});
-        renderer_render(&renderer);
-    }
+        Mat4 rotateDown = mat4RotateX(-0.40); //Rotate around origin/orbit
+        renderer.camera_view = mat4MultiplyM(&rotateDown, &v );
+
+        //TEA TRANSFORM - Defines position and orientation of the object
+        object.transform = mat4RotateZ(3.142128);
+        t = mat4RotateZ(0);
+        object.transform = mat4MultiplyM(&object.transform, &t );
+
+        //SCENE
+        s.transform = mat4RotateY(phi);
+        phi += 0.01;
+
+        rendererRender(&renderer);
+        usleep(40000);
+	}
 
     return 0;
 }
