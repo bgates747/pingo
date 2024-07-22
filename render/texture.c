@@ -1,6 +1,5 @@
 #include "texture.h"
-#include "render/state.h"
-#include <stdio.h>
+#include "math.h"
 
 int texture_init( Texture *f, Vec2i size, Pixel *buf )
 {
@@ -13,9 +12,8 @@ int texture_init( Texture *f, Vec2i size, Pixel *buf )
     f->frameBuffer = (Pixel *)buf;
     f->size = size;
 
-    return OK;
+    return 0;
 }
-
 
 void texture_draw(Texture *f, Vec2i pos, Pixel color)
 {
