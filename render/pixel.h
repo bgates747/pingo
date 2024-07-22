@@ -1,16 +1,17 @@
-#pragma once
+#ifndef PIXEL_H
+#define PIXEL_H
 
 #include <stdint.h>
 #include <stdlib.h>
 
-//What format to use [ UINT8 | RGB565 | RGBA8888 | BGRA8888 | RGB888 ]
+// What format to use [ UINT8 | RGB565 | RGBA8888 | BGRA8888 | RGB888 ]
 #define BGRA8888
 
-//Formats definitions:
+// Formats definitions:
 #ifdef UINT8
 typedef struct tag_Pixel {
     uint8_t g;
-}Pixel;
+} Pixel;
 #define PIXELBLACK (Pixel){0}
 #define PIXELWHITE (Pixel){255}
 #endif
@@ -20,7 +21,7 @@ typedef struct tag_Pixel {
     uint8_t red:5;
     uint8_t green:6;
     uint8_t blue:5;
-}Pixel;
+} Pixel;
 #define PIXELBLACK (Pixel){0}
 #define PIXELWHITE (Pixel){255}
 #endif
@@ -50,9 +51,9 @@ typedef struct tag_Pixel {
 
 #ifdef BGRA8888
 typedef struct tag_Pixel {
-    uint8_t r;
-    uint8_t g;
     uint8_t b;
+    uint8_t g;
+    uint8_t r;
     uint8_t a;
 } Pixel;
 
@@ -60,11 +61,11 @@ typedef struct tag_Pixel {
 #define PIXELWHITE (Pixel){255,255,255,255}
 #endif
 
-
-
-//Interface 
+// Interface 
 extern Pixel pixelRandom();
-extern Pixel pixelFromUInt8( uint8_t);
-extern uint8_t pixelToUInt8( Pixel *);
-extern Pixel pixelFromRGBA( uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-extern Pixel pixelMul( Pixel p, float f);
+extern Pixel pixelFromUInt8(uint8_t);
+extern uint8_t pixelToUInt8(Pixel *);
+extern Pixel pixelFromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+extern Pixel pixelMul(Pixel p, float f);
+
+#endif // PIXEL_H
