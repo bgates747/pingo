@@ -62,10 +62,48 @@ typedef struct tag_Pixel {
 #endif
 
 // Interface 
+
+/**
+ * @brief Generates a random pixel.
+ * 
+ * @return A Pixel structure with random color values.
+ */
 extern Pixel pixelRandom();
-extern Pixel pixelFromUInt8(uint8_t);
-extern uint8_t pixelToUInt8(Pixel *);
+
+/**
+ * @brief Creates a Pixel structure from a single 8-bit value.
+ * 
+ * @param value The 8-bit value.
+ * @return The resulting Pixel structure.
+ */
+extern Pixel pixelFromUInt8(uint8_t value);
+
+/**
+ * @brief Converts a Pixel structure to a single 8-bit value.
+ * 
+ * @param pixel The Pixel structure.
+ * @return The 8-bit value representing the pixel.
+ */
+extern uint8_t pixelToUInt8(Pixel *pixel);
+
+/**
+ * @brief Creates a Pixel structure from RGBA values.
+ * 
+ * @param r Red component.
+ * @param g Green component.
+ * @param b Blue component.
+ * @param a Alpha component.
+ * @return The resulting Pixel structure.
+ */
 extern Pixel pixelFromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-extern Pixel pixelMul(Pixel p, float f);
+
+/**
+ * @brief Multiplies a Pixel structure by a floating-point factor.
+ * 
+ * @param pixel The Pixel structure.
+ * @param factor The multiplication factor.
+ * @return The resulting Pixel structure.
+ */
+extern Pixel pixelMul(Pixel pixel, float factor);
 
 #endif // PIXEL_H

@@ -21,7 +21,7 @@ int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Texture * src) {
     Vec2f c = (Vec2f){off.x,off.y+src->size.y};
     Vec2f d = (Vec2f){off.x+src->size.x,off.y+src->size.y};
 
-    // .. To find the axis aligned boundig box
+    // .. To find the axis aligned bounding box
     int minX = MIN(MIN(a.x,b.x),MIN(c.x,d.x));
     int minY = MIN(MIN(a.y,b.y),MIN(c.y,d.y));
     int maxX = MAX(MAX(a.x,b.x),MAX(c.x,d.x));
@@ -55,7 +55,7 @@ int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Texture * src)
     Vec2f c = (Vec2f){off.x,off.y+src->size.y*2};
     Vec2f d = (Vec2f){off.x+src->size.x*2,off.y+src->size.y*2};
 
-    // .. To find the axis aligned boundig box
+    // .. To find the axis aligned bounding box
     int minX = MIN(MIN(a.x,b.x),MIN(c.x,d.x));
     int minY = MIN(MIN(a.y,b.y),MIN(c.y,d.y));
     int maxX = MAX(MAX(a.x,b.x),MAX(c.x,d.x));
@@ -103,7 +103,7 @@ int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
     c = mat4MultiplyVec2(&c, &t);
     d = mat4MultiplyVec2(&d, &t);
 
-    // .. To find the axis aligned boundig box
+    // .. To find the axis aligned bounding box
     int minX = MIN(MIN(a.x,b.x),MIN(c.x,d.x));
     int minY = MIN(MIN(a.y,b.y),MIN(c.y,d.y));
     int maxX = MAX(MAX(a.x,b.x),MAX(c.x,d.x));
@@ -115,13 +115,12 @@ int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
     minX = MIN(des.size.x, MAX(minX, 0));
     minY = MIN(des.size.y, MAX(minY, 0));
 
-    //Now we can iterate over the pixels of the axis-alignes-bounding-box (AABB) which contain the source frame
+    //Now we can iterate over the pixels of the axis-aligned bounding box (AABB) which contain the source frame
     for (int y = minY; y <= maxY; y++) {
         for (int x = minX; x <= maxX; x++) {
 
-
 #ifdef FILTERING_NEAREST
-            //Transform the coordinate back to sprite space with the inverse tranform
+            //Transform the coordinate back to sprite space with the inverse transform
             Vec2i desPos = {x,y};
             Vec2f desPosF = (Vec2f){desPos.x+0.5,desPos.y+0.5};
             Vec2f srcPosF = mat4MultiplyVec2(&desPosF,&inv);
@@ -141,7 +140,7 @@ int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
 #ifdef FILTERING_BILINEAR
             Vec2i desPos = {x,y};
             Vec2f desPosF = (Vec2f){desPos.x+0.5f,desPos.y+0.5f};
-            Vec2f srcPosF = mat4Multiply(&desPosF,&inv);
+            Vec2f srcPosF = mat4MultiplyVec2(&desPosF,&inv);
 
             //TODO: Improve this check by precalculating start/end coord in loop with line intersection
             //We need to check if transformed coord are inside the frame
@@ -159,8 +158,8 @@ int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
             Vec2i desPos = {x,y};
             Vec2f desPosF1 = (Vec2f){desPos.x+0.25f,desPos.y+0.25f};
             Vec2f desPosF2 = (Vec2f){desPos.x+0.75f,desPos.y+0.75f};
-            Vec2f srcPosF1 = mat4Multiply(&desPosF1,&inv);
-            Vec2f srcPosF2 = mat4Multiply(&desPosF2,&inv);
+            Vec2f srcPosF1 = mat4MultiplyVec2(&desPosF1,&inv);
+            Vec2f srcPosF2 = mat4MultiplyVec2(&desPosF2,&inv);
 
             if (srcPosF1.x < 0 && srcPosF2.x < 0) continue;
             if (srcPosF1.y < 0 && srcPosF2.y < 0) continue;

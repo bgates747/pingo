@@ -6,6 +6,9 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Represents a 4D vector with integer components.
+ */
 typedef struct Vec4i {
     I_TYPE x;
     I_TYPE y;
@@ -13,6 +16,9 @@ typedef struct Vec4i {
     I_TYPE w;
 } Vec4i;
 
+/**
+ * @brief Represents a 4D vector with floating-point components.
+ */
 typedef struct Vec4f {
     F_TYPE x;
     F_TYPE y;
