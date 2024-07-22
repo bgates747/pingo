@@ -1,13 +1,13 @@
 #include "linux_lookaround_backend.h"
-
-#include "render/depth.h"
-#include "render/pixel.h"
 #include "render/renderer.h"
 #include "render/texture.h"
+#include "render/pixel.h"
+#include "render/depth.h"
 
 #include <X11/Xlib.h>
-#include <X11/Xos.h>
 #include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <stdio.h>
 
 Vec4i rect;
 Vec2i totalSize;
@@ -22,108 +22,108 @@ GC gc;
 XImage *img = 0;
 Visual *visual;
 
-void init_x()
-{
+void init_x() {
     if (dis != 0)
         return;
-    dis = XOpenDisplay((char *) 0);
+
+    dis = XOpenDisplay((char *)0);
+    if (dis == 0) {
+        fprintf(stderr, "Error: Could not open display\n");
+        exit(-1);
+    }
+
     screen = DefaultScreen(dis);
     unsigned long black, white;
     black = BlackPixel(dis, DefaultScreen(dis));
-    white = BlackPixel(dis, DefaultScreen(dis));
-    win = XCreateSimpleWindow(dis,
-                              DefaultRootWindow(dis),
-                              0,
-                              0,
-                              totalSize.x,
-                              totalSize.y,
-                              5,
-                              white,
-                              black);
+    white = WhitePixel(dis, DefaultScreen(dis));
+    win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0, totalSize.x, totalSize.y, 5, white, black);
     XSelectInput(dis, win, ExposureMask | KeyPressMask);
     XSetStandardProperties(dis, win, "My Window", "HI!", None, NULL, 0, NULL);
     XSelectInput(dis, win, ExposureMask | ButtonPressMask | KeyPressMask);
     XMapWindow(dis, win);
     gc = XCreateGC(dis, win, 0, 0);
     visual = DefaultVisual(dis, 0);
-};
 
-void init(Renderer *ren, Backend *Backend, Vec4i _rect)
-{
+    if (win == 0 || gc == 0 || visual == 0) {
+        fprintf(stderr, "Error: X window initialization failed\n");
+        exit(-1);
+    }
+
+    printf("X window initialized\n");
+}
+
+void init(Renderer *ren, Backend *backend, Vec4i _rect) {
     rect = _rect;
     init_x();
+    printf("Backend initialized\n");
 }
 
-void beforeRender(Renderer *ren, Backend *Backend)
-{
-    LinuxLookaroundBackend *this = (LinuxLookaroundBackend *) Backend;
+void beforeRender(Renderer *ren, Backend *backend) {
+    LinuxLookaroundBackend *this = (LinuxLookaroundBackend *) backend;
+    printf("Before render\n");
 }
 
-XImage *create_ximage(Display *display, Visual *visual, int width, int height)
-{
-    return XCreateImage(display, visual, 24, ZPixmap, 0, (char *) &framebuffer[0], width, height, 32, 0);
-}
-
-void texture_flip_vertically(Texture *f) {
-    if (f->size.y <= 1) {
-        return; // No need to flip if there's only one row or less
+XImage *create_ximage(Display *display, Visual *visual, int width, int height) {
+    printf("Creating XImage\n");
+    XImage *ximage = XCreateImage(display, visual, 24, ZPixmap, 0, (char *)framebuffer, width, height, 32, 0);
+    if (!ximage) {
+        fprintf(stderr, "Error: Could not create XImage\n");
+        exit(-1);
     }
-
-    int bufferSize = f->size.x * f->size.y * sizeof(Pixel);
-    Pixel *tempBuffer = (Pixel *)malloc(bufferSize);
-
-    if (!tempBuffer) {
-        return;
-    }
-
-    // Copy the entire buffer to the temporary buffer
-    memcpy(tempBuffer, f->framebuffer, bufferSize);
-
-    // Flip the entire buffer vertically
-    for (int y = 0; y < f->size.y; ++y) {
-        int topIndex = y * f->size.x;
-        int bottomIndex = (f->size.y - y - 1) * f->size.x;
-
-        // Copy from the temporary buffer back to the texture buffer
-        memcpy(f->framebuffer + bottomIndex, tempBuffer + topIndex, f->size.x * sizeof(Pixel));
-    }
-
-    free(tempBuffer); // Free the temporary buffer
+    printf("XImage created\n");
+    return ximage;
 }
 
-void afterRender(Renderer *ren, Backend *Backend)
-{
+void afterRender(Renderer *ren, Backend *backend) {
+    printf("After render\n");
     if (!img) {
+        printf("Creating XImage in afterRender\n");
         img = create_ximage(dis, visual, totalSize.x, totalSize.y);
     }
 
-    texture_flip_vertically(&ren->framebuffer);
     XEvent event;
     XNextEvent(dis, &event);
-    XClearArea(dis, win, 0, 0, 1, 1, true);
-    XPutImage(dis, win, gc, img, 0, 0, 0, 0, totalSize.x, totalSize.y);
-    XFlush(dis);
+    {
+        XClearArea(dis, win, 0, 0, 1, 1, true);
+        XPutImage(dis, win, gc, img, 0, 0, 0, 0, totalSize.x, totalSize.y);
+        XFlush(dis);
+    }
 }
 
-Pixel *getFramebuffer(Renderer *ren, Backend *Backend)
-{
+Pixel *getFramebuffer(Renderer *ren, Backend *backend) {
+    printf("Getting framebuffer\n");
+    if (!framebuffer) {
+        fprintf(stderr, "Error: framebuffer is NULL\n");
+        exit(-1);
+    }
     return framebuffer;
 }
 
-PingoDepth *getZetaBuffer(Renderer *ren, Backend *Backend)
-{
+PingoDepth *getZetaBuffer(Renderer *ren, Backend *backend) {
+    printf("Getting Zeta buffer\n");
+    if (!zetaBuffer) {
+        fprintf(stderr, "Error: zetaBuffer is NULL\n");
+        exit(-1);
+    }
     return zetaBuffer;
 }
 
-void linuxWindowBackendInit(LinuxLookaroundBackend *this, Vec2i size)
-{
+void linuxLookaroundBackendInit(LinuxLookaroundBackend *this, Vec2i size) {
     totalSize = size;
     this->backend.init = &init;
     this->backend.beforeRender = &beforeRender;
     this->backend.afterRender = &afterRender;
     this->backend.getFramebuffer = &getFramebuffer;
     this->backend.getZetaBuffer = &getZetaBuffer;
+    this->backend.drawPixel = 0;
 
     zetaBuffer = malloc(size.x * size.y * sizeof(PingoDepth));
     framebuffer = malloc(size.x * size.y * sizeof(Pixel));
+
+    if (!zetaBuffer || !framebuffer) {
+        fprintf(stderr, "Error: Could not allocate memory for buffers\n");
+        exit(-1);
+    }
+
+    printf("Buffers allocated\n");
 }
