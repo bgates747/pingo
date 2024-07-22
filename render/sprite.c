@@ -3,7 +3,7 @@
 
 int spriteInit(Sprite *s, Texture f, Mat4 t)
 {
-    if (f.frameBuffer == 0)
+    if (f.framebuffer == 0)
         return 1;
 
     s->frame = f;

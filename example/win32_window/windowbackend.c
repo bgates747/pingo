@@ -17,7 +17,7 @@ Vec4i rect;
 Vec2i totalSize;
 
 Depth * zetaBuffer;
-Pixel * frameBuffer;
+Pixel * framebuffer;
 COLORREF * copyBuffer;
 
 HWND windowHandle;
@@ -35,7 +35,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
     {
         for (int y = 0; y < rect.z*rect.w; y++ ) {
-            copyBuffer[y] = pixelToRGBA(&frameBuffer[y]);
+            copyBuffer[y] = pixelToRGBA(&framebuffer[y]);
         }
 
         HBITMAP map = CreateBitmap(rect.z, // width
@@ -119,17 +119,17 @@ HWND WINAPI winMain(HINSTANCE hInstance,  HINSTANCE hINSTANCE,  LPSTR lPSTR, int
     return hwnd;
 }
 
-void init( Renderer * ren, BackEnd * backEnd, Vec4i _rect) {
+void init( Renderer * ren, Backend * backend, Vec4i _rect) {
     //Save the rect so the windows drawing code knows whhere and how to copy the rendered buffer on the window
     rect = _rect;
 }
 
-void beforeRender( Renderer * ren, BackEnd * backEnd) {
-    WindowBackEnd * this = (WindowBackEnd *) backEnd;
+void beforeRender( Renderer * ren, Backend * backend) {
+    WindowBackend * this = (WindowBackend *) backend;
      MSG msg;
 }
 
-void afterRender( Renderer * ren,  BackEnd * backEnd) {
+void afterRender( Renderer * ren,  Backend * backend) {
     //Dispatch window messages, eventually one of the messages will be a redraw and the window rect will be updated
     MSG msg;
     if ( GetMessage( &msg, NULL, 0, 0 ) ) {
@@ -138,25 +138,25 @@ void afterRender( Renderer * ren,  BackEnd * backEnd) {
     }
 }
 
-Pixel * getFrameBuffer( Renderer * ren,  BackEnd * backEnd) {
-    return frameBuffer;
+Pixel * getFramebuffer( Renderer * ren,  Backend * backend) {
+    return framebuffer;
 }
 
-Depth * getZetaBuffer( Renderer * ren,  BackEnd * backEnd) {
+Depth * getZetaBuffer( Renderer * ren,  Backend * backend) {
     return zetaBuffer;
 }
 
-void windowBackEndInit( WindowBackEnd * this, Vec2i size) {
+void windowBackendInit( WindowBackend * this, Vec2i size) {
     totalSize = size;
     this->backend.init = &init;
     this->backend.beforeRender = &beforeRender;
     this->backend.afterRender = &afterRender;
-    this->backend.getFrameBuffer = &getFrameBuffer;
+    this->backend.getFramebuffer = &getFramebuffer;
     this->backend.getZetaBuffer = &getZetaBuffer;
     this->backend.drawPixel = 0;
 
     zetaBuffer = malloc(size.x*size.y*sizeof (Depth));
-    frameBuffer = malloc(size.x*size.y*sizeof (Pixel));
+    framebuffer = malloc(size.x*size.y*sizeof (Pixel));
     copyBuffer = malloc(size.x*size.y*sizeof (COLORREF) * 4);
 
     windowHandle = winMain(0,0,0, SW_NORMAL );

@@ -19,10 +19,10 @@
 Vec4i rect;
 Vec2i totalSize;
 PingoDepth * zetaBuffer;
-Pixel * frameBuffer;
+Pixel * framebuffer;
 Pixel * renderBuffer; // New buffer for rendering
 
-void init(Renderer *ren, BackEnd *backEnd, Vec4i _rect) {
+void init(Renderer *ren, Backend *backend, Vec4i _rect) {
     rect = _rect;
 
     // Allocate memory for the render buffer
@@ -33,8 +33,8 @@ void init(Renderer *ren, BackEnd *backEnd, Vec4i _rect) {
     }
 }
 
-void beforeRender(Renderer *ren, BackEnd *backEnd) {
-    LinuxFramebufferBackEnd *this = (LinuxFramebufferBackEnd *)backEnd;
+void beforeRender(Renderer *ren, Backend *backend) {
+    LinuxFramebufferBackend *this = (LinuxFramebufferBackend *)backend;
 
     // Clear the render buffer
     //memset(renderBuffer, 0, rect.z * rect.w * sizeof(Pixel));
@@ -43,36 +43,36 @@ void beforeRender(Renderer *ren, BackEnd *backEnd) {
     // ...
 }
 
-void afterRender(Renderer *ren, BackEnd *backEnd) {
-    LinuxFramebufferBackEnd *this = (LinuxFramebufferBackEnd *)backEnd;
+void afterRender(Renderer *ren, Backend *backend) {
+    LinuxFramebufferBackend *this = (LinuxFramebufferBackend *)backend;
 
     // Copy the contents of the render buffer to the framebuffer
     int bufferSize = rect.z * rect.w * sizeof(Pixel);
-    memcpy(frameBuffer + rect.x + totalSize.x * rect.y, renderBuffer, bufferSize);
+    memcpy(framebuffer + rect.x + totalSize.x * rect.y, renderBuffer, bufferSize);
 
     // Perform cleanup after rendering
     // ...
 }
 
-Pixel *getFrameBuffer(Renderer *ren, BackEnd *backEnd) {
+Pixel *getFramebuffer(Renderer *ren, Backend *backend) {
     return renderBuffer; // Return the render buffer for rendering
 }
 
-PingoDepth *getZetaBuffer(Renderer *ren, BackEnd *backEnd) {
+PingoDepth *getZetaBuffer(Renderer *ren, Backend *backend) {
     return zetaBuffer;
 }
 
-void linuxFramebufferBackEndInit(LinuxFramebufferBackEnd *this, Vec2i size, const char *framebufferDevice) {
+void linuxFramebufferBackendInit(LinuxFramebufferBackend *this, Vec2i size, const char *framebufferDevice) {
     totalSize = size;
     this->backend.init = &init;
     this->backend.beforeRender = &beforeRender;
     this->backend.afterRender = &afterRender;
-    this->backend.getFrameBuffer = &getFrameBuffer;
+    this->backend.getFramebuffer = &getFramebuffer;
     this->backend.getZetaBuffer = &getZetaBuffer;
 
     zetaBuffer = malloc(size.x * size.y * sizeof(PingoDepth));
     int fdScreen = open(framebufferDevice, O_RDWR);
-    frameBuffer = mmap(0, size.x * size.y * 4, PROT_READ | PROT_WRITE, MAP_SHARED, fdScreen, 0);
+    framebuffer = mmap(0, size.x * size.y * 4, PROT_READ | PROT_WRITE, MAP_SHARED, fdScreen, 0);
 }
 
 // Don't forget to free memory for renderBuffer and zetaBuffer when no longer needed

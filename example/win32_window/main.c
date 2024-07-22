@@ -31,11 +31,11 @@ Pixel * loadTexture(char * filename, Vec2i size) {
 int main(){
     Vec2i size = {1280, 800};
 
-    WindowBackEnd backend;
-    windowBackEndInit(&backend, size);
+    WindowBackend backend;
+    windowBackendInit(&backend, size);
 
     Renderer renderer;
-    rendererInit(&renderer, size,(BackEnd*) &backend );
+    rendererInit(&renderer, size,(Backend*) &backend );
 
     Scene s;
     sceneInit(&s);

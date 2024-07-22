@@ -1,4 +1,4 @@
-#include "linux_window_backend.h"
+#include "linux_lookaround_backend.h"
 
 #include "render/depth.h"
 #include "render/pixel.h"
@@ -56,7 +56,7 @@ void init(Renderer *ren, Backend *Backend, Vec4i _rect)
 
 void beforeRender(Renderer *ren, Backend *Backend)
 {
-    LinuxWindowBackend *this = (LinuxWindowBackend *) Backend;
+    LinuxLookaroundBackend *this = (LinuxLookaroundBackend *) Backend;
 }
 
 XImage *create_ximage(Display *display, Visual *visual, int width, int height)
@@ -115,7 +115,7 @@ PingoDepth *getZetaBuffer(Renderer *ren, Backend *Backend)
     return zetaBuffer;
 }
 
-void linuxWindowBackendInit(LinuxWindowBackend *this, Vec2i size)
+void linuxWindowBackendInit(LinuxLookaroundBackend *this, Vec2i size)
 {
     totalSize = size;
     this->backend.init = &init;

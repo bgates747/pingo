@@ -10,23 +10,23 @@
 
 Vec2i totalSize;
 PingoDepth * zetaBuffer;
-Pixel * frameBuffer;
+Pixel * framebuffer;
 
-void terminal_backend_init_backend( Renderer * ren, Backend * backEnd, Vec4i _rect) {
+void terminal_backend_init_backend( Renderer * ren, Backend * backend, Vec4i _rect) {
 }
 
-void terminal_backend_beforeRender( Renderer * ren, Backend * backEnd) {
+void terminal_backend_beforeRender( Renderer * ren, Backend * backend) {
     // clear and move cursor to start point
     printf("\033[2J");
 }
 
-void terminal_backend_afterRender( Renderer * ren,  Backend * backEnd) {
+void terminal_backend_afterRender( Renderer * ren,  Backend * backend) {
     const char scale[] = "      ...,,,:::;;cc!!+*C##@";
     int charSize = sizeof(scale);
     for (int y = totalSize.y -1; y > 0; y-- ) {
         char chars[totalSize.x];
         for (int x = 0; x < totalSize.x; x++ ) {
-            double normalValue = pixelToUInt8(&frameBuffer[x + y * totalSize.x]) / 255.0;
+            double normalValue = pixelToUInt8(&framebuffer[x + y * totalSize.x]) / 255.0;
             normalValue += (rand() % 1000) * 0.0001;
             normalValue = (normalValue + 0.1) * (1.0/1.2);
             int index = 0.99 + charSize * normalValue;
@@ -39,11 +39,11 @@ void terminal_backend_afterRender( Renderer * ren,  Backend * backEnd) {
     }
 }
 
-Pixel * terminal_backend_getFrameBuffer( Renderer * ren,  Backend * backEnd) {
-    return frameBuffer;
+Pixel * terminal_backend_getFramebuffer( Renderer * ren,  Backend * backend) {
+    return framebuffer;
 }
 
-PingoDepth * terminal_backend_getZetaBuffer( Renderer * ren,  Backend * backEnd) {
+PingoDepth * terminal_backend_getZetaBuffer( Renderer * ren,  Backend * backend) {
     return zetaBuffer;
 }
 
@@ -53,9 +53,9 @@ void terminal_backend_init(TerminalBackend *this, Vec2i size)
     this->backend.init = &terminal_backend_init_backend;
     this->backend.beforeRender = &terminal_backend_beforeRender;
     this->backend.afterRender = &terminal_backend_afterRender;
-    this->backend.getFrameBuffer = &terminal_backend_getFrameBuffer;
+    this->backend.getFramebuffer = &terminal_backend_getFramebuffer;
     this->backend.getZetaBuffer = &terminal_backend_getZetaBuffer;
 
     zetaBuffer = malloc(size.x*size.y*sizeof (PingoDepth));
-	frameBuffer = malloc(size.x*size.y*sizeof (Pixel));
+	framebuffer = malloc(size.x*size.y*sizeof (Pixel));
 }

@@ -85,9 +85,9 @@ int orient2d( Vec2i a,  Vec2i b,  Vec2i c)
 
 void backendDrawPixel (Renderer * r, Texture * f, Vec2i pos, Pixel color, float illumination) {
     // If backend specifies something..
-    if (r->backEnd->drawPixel != 0) {
+    if (r->backend->drawPixel != 0) {
         // Draw using the backend
-        r->backEnd->drawPixel(f, pos, color, illumination);
+        r->backend->drawPixel(f, pos, color, illumination);
     }
     else {
         // By default call this
@@ -97,7 +97,7 @@ void backendDrawPixel (Renderer * r, Texture * f, Vec2i pos, Pixel color, float 
 
 int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
 
-    const Vec2i scrSize = r->frameBuffer.size;
+    const Vec2i scrSize = r->framebuffer.size;
     Object * o = ren.impl;
     Vec2f * tex_coords = o->textCoord;
     if (!tex_coords) {
@@ -179,10 +179,10 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
         int32_t maxX = MAX(MAX(a_s.x, b_s.x), c_s.x);
         int32_t maxY = MAX(MAX(a_s.y, b_s.y), c_s.y);
 
-        minX = MIN(MAX(minX, 0), r->frameBuffer.size.x);
-        minY = MIN(MAX(minY, 0), r->frameBuffer.size.y);
-        maxX = MIN(MAX(maxX, 0), r->frameBuffer.size.x);
-        maxY = MIN(MAX(maxY, 0), r->frameBuffer.size.y);
+        minX = MIN(MAX(minX, 0), r->framebuffer.size.x);
+        minY = MIN(MAX(minY, 0), r->framebuffer.size.y);
+        maxX = MIN(MAX(maxX, 0), r->framebuffer.size.x);
+        maxY = MIN(MAX(maxY, 0), r->framebuffer.size.y);
 
         // Barycentric coordinates at minX/minY corner
         Vec2i minTriangle = { minX, minY };
@@ -226,10 +226,10 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
                 if (depth < 0.0 || depth > 1.0)
                     continue;
 
-                if (depth_check(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1-depth ))
+                if (depth_check(r->backend->getZetaBuffer(r,r->backend), x + y * scrSize.x, 1-depth ))
                     continue;
 
-                depth_write(r->backEnd->getZetaBuffer(r,r->backEnd), x + y * scrSize.x, 1- depth );
+                depth_write(r->backend->getZetaBuffer(r,r->backend), x + y * scrSize.x, 1- depth );
 
                 if (o->material != 0) {
                     //Texture lookup
@@ -242,14 +242,14 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
                     //show_pixel(textCoordx, textCoordy, text.a, text.b, text.g, text.r);
 #endif
 
-                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, text, diffuseLight);
+                    backendDrawPixel(r, &r->framebuffer, (Vec2i){x,y}, text, diffuseLight);
                 } else {
                     Pixel pixel;
                     pixel.a = 255;
                     pixel.b = 255;
                     pixel.g = 0;
                     pixel.r = 255;
-                    backendDrawPixel(r, &r->frameBuffer, (Vec2i){x,y}, pixel, diffuseLight);
+                    backendDrawPixel(r, &r->framebuffer, (Vec2i){x,y}, pixel, diffuseLight);
                 }
 
             }
@@ -260,7 +260,7 @@ int renderObject(Mat4 object_transform, Renderer * r, Renderable ren) {
     return 0;
 };
 
-int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
+int rendererInit(Renderer * r, Vec2i size, Backend * backend) {
     renderingFunctions[RENDERABLE_SPRITE] = & renderSprite;
     renderingFunctions[RENDERABLE_SCENE] = & renderScene;
     renderingFunctions[RENDERABLE_OBJECT] = & renderObject;
@@ -268,12 +268,12 @@ int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
     r->scene = 0;
     r->clear = 1;
     r->clearColor = PIXELBLACK;
-    r->backEnd = backEnd;
+    r->backend = backend;
 
-    r->backEnd->init(r, r->backEnd, (Vec4i) { 0, 0, 0, 0 });
+    r->backend->init(r, r->backend, (Vec4i) { 0, 0, 0, 0 });
 
     int e = 0;
-    e = texture_init( & (r->frameBuffer), size, backEnd->getFrameBuffer(r, backEnd));
+    e = texture_init( & (r->framebuffer), size, backend->getFramebuffer(r, backend));
     if (e) return e;
 
     return 0;
@@ -281,22 +281,22 @@ int rendererInit(Renderer * r, Vec2i size, BackEnd * backEnd) {
 
 int rendererRender(Renderer * r) {
 
-    int pixels = r->frameBuffer.size.x * r->frameBuffer.size.y;
-    memset(r->backEnd->getZetaBuffer(r,r->backEnd), 0, pixels * sizeof (PingoDepth));
+    int pixels = r->framebuffer.size.x * r->framebuffer.size.y;
+    memset(r->backend->getZetaBuffer(r,r->backend), 0, pixels * sizeof (PingoDepth));
 
-    r->backEnd->beforeRender(r, r->backEnd);
+    r->backend->beforeRender(r, r->backend);
 
     //get current framebuffe from backend
-    r->frameBuffer.frameBuffer = r->backEnd->getFrameBuffer(r, r->backEnd);
+    r->framebuffer.framebuffer = r->backend->getFramebuffer(r, r->backend);
 
     //Clear draw buffer before rendering
     if (r->clear) {
-        memset(r->backEnd->getFrameBuffer(r,r->backEnd), 0, pixels * sizeof (Pixel));
+        memset(r->backend->getFramebuffer(r,r->backend), 0, pixels * sizeof (Pixel));
     }
 
     renderScene(mat4Identity(), r, sceneAsRenderable(r->scene));
 
-    r->backEnd->afterRender(r, r->backEnd);
+    r->backend->afterRender(r, r->backend);
 
     return 0;
 }
@@ -311,8 +311,8 @@ int rendererSetScene(Renderer * r, Scene * s) {
 
 int rendererSetCamera(Renderer * r, Vec4i rect) {
     r->camera = rect;
-    r->backEnd->init(r, r->backEnd, rect);
-    r->frameBuffer.size = (Vec2i) {
+    r->backend->init(r, r->backend, rect);
+    r->framebuffer.size = (Vec2i) {
             rect.z, rect.w
 };
     return 0;
