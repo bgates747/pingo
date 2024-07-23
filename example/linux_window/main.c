@@ -38,7 +38,7 @@ Pixel * loadTexture(char * filename, Vec2i size) {
 }
 
 int main(){
-    Vec2i size = {640, 480};
+    Vec2i size = {320, 240};
 
     LinuxWindowBackend backend;
     linuxWindowBackendInit(&backend, size);
@@ -66,27 +66,27 @@ int main(){
     float phi = 0;
     Mat4 t;
 
+    // PROJECTION MATRIX - Defines the type of projection used
+    renderer.camera_projection = mat4Perspective( 1, 2500.0,(float)size.x / (float)size.y, 0.6);
+
+    //VIEW MATRIX - Defines position and orientation of the "camera"
+    Mat4 v = mat4Translate((Vec3f) { 0,2,-35});
+
+    Mat4 rotateDown = mat4RotateX(-0.40); //Rotate around origin/orbit
+    renderer.camera_view = mat4MultiplyM(&rotateDown, &v );
+
+    //OBJECT TRANSFORM - Defines position and orientation of the object
+    object.transform = mat4RotateZ(3.142128);
+    t = mat4RotateZ(0);
+    object.transform = mat4MultiplyM(&object.transform, &t );
+
 	while (1) {
-        // PROJECTION MATRIX - Defines the type of projection used
-        renderer.camera_projection = mat4Perspective( 1, 2500.0,(float)size.x / (float)size.y, 0.6);
-
-        //VIEW MATRIX - Defines position and orientation of the "camera"
-        Mat4 v = mat4Translate((Vec3f) { 0,2,-35});
-
-        Mat4 rotateDown = mat4RotateX(-0.40); //Rotate around origin/orbit
-        renderer.camera_view = mat4MultiplyM(&rotateDown, &v );
-
-        //TEA TRANSFORM - Defines position and orientation of the object
-        object.transform = mat4RotateZ(3.142128);
-        t = mat4RotateZ(0);
-        object.transform = mat4MultiplyM(&object.transform, &t );
-
         //SCENE
         s.transform = mat4RotateY(phi);
         phi += 0.01;
 
         rendererRender(&renderer);
-        usleep(40000);
+        // usleep(40000);
 	}
 
     return 0;

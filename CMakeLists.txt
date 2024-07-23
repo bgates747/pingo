@@ -80,8 +80,12 @@ include_directories(./)
 # endif (WIN32)
 
 if (UNIX)
+  find_package(OpenGL REQUIRED)
+  find_package(X11 REQUIRED)
+
   add_executable(linux_window ${linux_window_src})
-  target_link_libraries(linux_window pingo assets X11)
+  target_include_directories(linux_window PRIVATE ${OPENGL_INCLUDE_DIR} ${X11_INCLUDE_DIR})
+  target_link_libraries(linux_window pingo assets X11 Xrandr ${OPENGL_LIBRARIES})
   configure_file(${CMAKE_SOURCE_DIR}/assets/viking.rgba ${CMAKE_BINARY_DIR}/assets/viking.rgba COPYONLY)
 
   add_executable(linux_lookaround ${linux_lookaround_src})
@@ -94,14 +98,3 @@ if (UNIX)
   # add_executable(linux_terminal ${terminal_src})
   # target_link_libraries(linux_terminal pingo assets)
 endif (UNIX)
-
-# # Enable export of compile commands for dependency analysis
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# # Add a custom target to generate a dependency graph
-# add_custom_target(dep-graph ALL
-#     COMMAND ${CMAKE_COMMAND} --graphviz=dependency-graph.dot ${CMAKE_BINARY_DIR}
-#     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#     COMMENT "Generating dependency graph"
-# )
-

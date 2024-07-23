@@ -8,6 +8,15 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/Xrandr.h>
+
+#include <GL/glx.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
+#include <stdio.h>
+
 
 Vec4i rect;
 Vec2i totalSize;
@@ -90,4 +99,39 @@ void linuxWindowBackendInit( LinuxWindowBackend * this, Vec2i size) {
     zetaBuffer = malloc(size.x*size.y*sizeof (PingoDepth));
     framebuffer = malloc(size.x*size.y*sizeof (Pixel));
     
+}
+
+int getRefreshRate(LinuxWindowBackend *backend) {
+    XRRScreenConfiguration *conf = XRRGetScreenInfo(backend->display, RootWindow(backend->display, 0));
+    if (!conf) {
+        fprintf(stderr, "Unable to get screen info\n");
+        return -1;
+    }
+
+    short refresh_rate = XRRConfigCurrentRate(conf);
+    XRRFreeScreenConfigInfo(conf);
+
+    return refresh_rate;
+}
+
+int setupVSyncHandler(LinuxWindowBackend *backend) {
+    PFNGLXGETVIDEOSYNCSGIPROC glXGetVideoSyncSGI = (PFNGLXGETVIDEOSYNCSGIPROC)glXGetProcAddressARB((const GLubyte *)"glXGetVideoSyncSGI");
+    PFNGLXWAITVIDEOSYNCSGIPROC glXWaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)glXGetProcAddressARB((const GLubyte *)"glXWaitVideoSyncSGI");
+
+    if (!glXGetVideoSyncSGI || !glXWaitVideoSyncSGI) {
+        fprintf(stderr, "VSync functions not supported\n");
+        return -1;
+    }
+
+    unsigned int count;
+    glXGetVideoSyncSGI(&count);
+    printf("Initial VSync Count: %u\n", count);
+
+    while (1) {
+        glXWaitVideoSyncSGI(2, (count + 1) % 2, &count);
+        printf("VSync event fired. New Count: %u\n", count);
+        // Here you can trigger any event you want when vsync fires
+    }
+
+    return 0;
 }
