@@ -13,4 +13,12 @@ typedef struct Mesh {
     uint16_t *tex_indices;     ///< Indices for texture coordinates.
     Vec3f *positions;          ///< Array of vertex positions.
     Vec2f *textCoord;          ///< Array of texture coordinates.
+    Vec3f *normals;            ///< Array of normals. (BRG modification)
 } Mesh;
+
+/**
+ * @brief Calculates the normals for a mesh.
+ * 
+ * @param mesh Pointer to the mesh to calculate normals for.
+ */
+void calculateNormals(Mesh *mesh);

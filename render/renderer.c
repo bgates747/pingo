@@ -88,6 +88,14 @@ int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
     //     tex_coords = o->mesh->textCoord;
     // }
 
+    // // FOR BACKWARD COMPATIBILITY
+    // // Check if normals are already calculated
+    // if (o->mesh->normals == NULL) {
+    //     // Calculate normals for the mesh
+    //     calculateNormals(o->mesh);
+    // }
+    // // END FOR BACKWARD COMPATIBILITY
+
     // MODEL MATRIX
     Mat4 m = mat4MultiplyM(&o->transform, &object_transform);
 
@@ -118,10 +126,8 @@ int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
         b = mat4MultiplyVec4(&b, &m);
         c = mat4MultiplyVec4(&c, &m);
 
-        // Calc Face Normal
-        Vec3f na = vec3fsubV(*((Vec3f *)(&a)), *((Vec3f *)(&b)));
-        Vec3f nb = vec3fsubV(*((Vec3f *)(&a)), *((Vec3f *)(&c)));
-        Vec3f normal = vec3Normalize(vec3Cross(na, nb));
+        Vec3f normal = o->mesh->normals[i];
+
         Vec3f light = vec3Normalize((Vec3f){-8, -5, 5});
         float diffuseLight = (1.0 + vec3Dot(normal, light)) * 0.5;
         diffuseLight = MIN(1.0, MAX(diffuseLight, 0));
@@ -244,8 +250,13 @@ int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
         }
     }
 
+    // DEBUG: delete object normals so they are recalculated every render cycle for performance testing
+    // free(o->mesh->normals);
+    // o->mesh->normals = NULL;
+
     return 0;
 }
+
 
 int rendererInit(Renderer *r, Vec2i size, Backend *backend) {
     renderingFunctions[RENDERABLE_SPRITE] = &renderSprite;
