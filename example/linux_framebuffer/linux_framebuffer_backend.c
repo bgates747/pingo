@@ -3,7 +3,7 @@
 #include "render/depth.h"
 #include "render/pixel.h"
 #include "render/renderer.h"
-#include "render/texture.h"
+#include "render/image.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

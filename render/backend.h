@@ -2,7 +2,7 @@
 
 #include "../math/vec2.h"
 #include "../math/vec4.h"
-#include "texture.h"
+#include "image.h"
 #include "pixel.h"
 
 /**
@@ -57,7 +57,7 @@ typedef struct Backend {
      * @param color The color of the pixel.
      * @param illumination The illumination factor.
      */
-    void (*drawPixel)(Texture * texture, Vec2i pos, Pixel color, float illumination);
+    void (*drawPixel)(Image * texture, Vec2i pos, Pixel color, float illumination);
 
     /**
      * @brief Should return the address of the zeta buffer (height * width * sizeof(PingoDepth)).

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "texture.h"
+#include "image.h"
 #include "renderable.h"
 #include "../math/mat4.h"
 
@@ -13,18 +13,18 @@ extern "C" {
  */
 typedef struct Sprite {
     Mat4 t;       ///< Transformation matrix for the sprite.
-    Texture frame; ///< Texture frame of the sprite.
+    Image frame; ///< Image frame of the sprite.
 } Sprite;
 
 /**
  * @brief Initializes a sprite.
  * 
  * @param s Pointer to the sprite to initialize.
- * @param f Texture frame for the sprite.
+ * @param f Image frame for the sprite.
  * @param t Transformation matrix for the sprite.
  * @return 0 on success, 1 if the framebuffer is null.
  */
-extern int spriteInit(Sprite *s, Texture f, Mat4 t);
+extern int spriteInit(Sprite *s, Image f, Mat4 t);
 
 /**
  * @brief Randomizes the pixels of the sprite's texture frame.

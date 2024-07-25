@@ -41,7 +41,7 @@ Pixel * loadTexture(char * filename, Vec2i size) {
 int main(){
 
     Pixel * image = loadTexture("./viking.rgba", (Vec2i){1024,1024});
-    Texture texture;
+    Image texture;
     texture_init(&texture, (Vec2i){1024, 1024}, image);
 
     Material material;

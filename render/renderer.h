@@ -1,6 +1,6 @@
 #pragma once
 
-#include "texture.h"
+#include "image.h"
 #include "renderable.h"
 #include "pixel.h"
 #include "../math/vec4.h"
@@ -15,7 +15,7 @@ typedef struct Renderer {
     Vec4i camera;             ///< Camera viewport.
     Scene *scene;             ///< Pointer to the scene to be rendered.
 
-    Texture framebuffer;      ///< Framebuffer for rendering.
+    Image framebuffer;      ///< Framebuffer for rendering.
     Pixel clearColor;         ///< Color used for clearing the framebuffer.
     int clear;                ///< Flag indicating whether to clear the framebuffer.
 

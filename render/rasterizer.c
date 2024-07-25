@@ -12,8 +12,8 @@ Vec2i vec2iClamp(Vec2i in, Vec2i min, Vec2i max) {
     return in;
 }
 
-int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Texture * src) {
-    Texture des = r->framebuffer;
+int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Image * src) {
+    Image des = r->framebuffer;
 
     //Transform coords on destination (it is only translation so it is easy)
     Vec2f a = (Vec2f){off.x,off.y};
@@ -38,16 +38,16 @@ int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Texture * src) {
             //Transform the coordinate back to sprite space
             Vec2i desPos = {x,y};
             Vec2i srcPosI = {x-off.x,y-off.y};
-            Pixel color = texture_read(src, srcPosI);
-            texture_draw(&des, desPos, color);
+            Pixel color = image_read(src, srcPosI);
+            image_draw(&des, desPos, color);
         }
     }
 
     return 0;
 }
 
-int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Texture * src) {
-    Texture des = r->framebuffer;
+int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Image * src) {
+    Image des = r->framebuffer;
 
     //Transform coords on destination (double the size of the frame)
     Vec2f a = (Vec2f){off.x,off.y};
@@ -71,24 +71,24 @@ int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Texture * src)
         for (int x = minX; x < maxX; x=x+2) {
             //Transform the coordinate back to sprite space
             Vec2i srcPosI = {(x-off.x)/2,(y-off.y)/2};
-            Pixel color = texture_read(src, srcPosI);
-            texture_draw(&des, (Vec2i){x,y}, color);
-            texture_draw(&des, (Vec2i){x+1,y}, color);
+            Pixel color = image_read(src, srcPosI);
+            image_draw(&des, (Vec2i){x,y}, color);
+            image_draw(&des, (Vec2i){x+1,y}, color);
         }
         for (int x = minX; x < maxX; x=x+2) {
             //Transform the coordinate back to sprite space
             Vec2i srcPosI = {(x-off.x)/2,(y-off.y)/2};
-            Pixel color = texture_read(src, srcPosI);
-            texture_draw(&des, (Vec2i){x,y+1}, color);
-            texture_draw(&des, (Vec2i){x+1,y+1}, color);
+            Pixel color = image_read(src, srcPosI);
+            image_draw(&des, (Vec2i){x,y+1}, color);
+            image_draw(&des, (Vec2i){x+1,y+1}, color);
         }
     }
 
     return 0;
 }
 
-int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
-    Texture des = r->framebuffer;
+int rasterizer_draw_transformed(Mat4 t, Renderer *r, Image * src) {
+    Image des = r->framebuffer;
 
     Mat4 inv = mat4Inverse(&t);
 
@@ -135,7 +135,7 @@ int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
             if (srcPosF.y < 0) continue;
             if (srcPosF.x >= src->size.x) continue;
             if (srcPosF.y >= src->size.y) continue;
-            Pixel color = texture_read(src, srcPosI);
+            Pixel color = image_read(src, srcPosI);
 #endif
 #ifdef FILTERING_BILINEAR
             Vec2i desPos = {x,y};
@@ -233,7 +233,7 @@ int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture * src) {
 
             Pixel color = pixelFromUInt8((p1+p2+p3+p4+p5+p6+p7+p8+p9+p0+p11+p12+p13+p14+p15+p16) / 16);
 #endif
-            texture_draw(&des, desPos, color);
+            image_draw(&des, desPos, color);
         }
     }
 

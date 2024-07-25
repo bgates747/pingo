@@ -1,7 +1,7 @@
 #include "windowbackend.h"
 #include "assets/viking.h"
 #include "render/renderer.h"
-#include "render/texture.h"
+#include "render/image.h"
 #include "render/sprite.h"
 #include "render/scene.h"
 #include "render/object.h"
@@ -43,12 +43,12 @@ int main(){
 
     Object viking_room;
     viking_room.mesh = &viking_mesh;
-    sceneAddRenderable(&s, object_as_renderable(&viking_room));
+    sceneAddRenderable(&s, objectAsRenderable(&viking_room));
     viking_room.material = 0;
 
     Pixel * image = loadTexture("texture.data", (Vec2i){1024,1024});
 
-    Texture tex;
+    Image tex;
     texture_init(&tex, (Vec2i){1024,1024},image);
 
     Material m;

@@ -1,6 +1,6 @@
 #include "linux_lookaround_backend.h"
 #include "render/renderer.h"
-#include "render/texture.h"
+#include "render/image.h"
 #include "render/pixel.h"
 #include "render/depth.h"
 

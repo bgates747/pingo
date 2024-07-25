@@ -14,7 +14,7 @@ extern void show_pixel(float x, float y, uint8_t a, uint8_t b, uint8_t g, uint8_
 #endif
 
 int renderFrame(Renderer *r, Renderable ren) {
-    Texture *f = ren.impl;
+    Image *f = ren.impl;
     return rasterizer_draw_pixel_perfect((Vec2i){0, 0}, r, f);
 }
 
@@ -66,85 +66,36 @@ int orient2d(Vec2i a, Vec2i b, Vec2i c) {
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-void backendDrawPixel(Renderer *r, Texture *f, Vec2i pos, Pixel color, float illumination) {
+void backendDrawPixel(Renderer *r, Image *f, Vec2i pos, Pixel color, float illumination) {
     // If backend specifies something..
     if (r->backend->drawPixel != 0) {
         // Draw using the backend
         r->backend->drawPixel(f, pos, color, illumination);
     } else {
         // By default call this
-        texture_draw(f, pos, pixelMul(color, illumination));
+        image_draw(f, pos, pixelMul(color, illumination));
     }
 }
 
-int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
+int renderObject(Renderer *r, Object object) {
     const Vec2i scrSize = r->framebuffer.size;
-    Object *o = ren.impl;
-    Vec2f *tex_coords = o->mesh->textCoord;
-    // TODO: REVIEW ME: Check why o->textCoord assignment causes a segfault
-    // or indeed why we try to do that first instead of the assignment above which does work
-    // Vec2f *tex_coords = o->textCoord;
-    // if (!tex_coords) {
-    //     tex_coords = o->mesh->textCoord;
-    // }
 
-    // // FOR BACKWARD COMPATIBILITY
-    // // Check if normals are already calculated
-    // if (o->mesh->normals == NULL) {
-    //     // Calculate normals for the mesh
-    //     calculateNormals(o->mesh);
-    // }
-    // // END FOR BACKWARD COMPATIBILITY
+    for (int i = 0; i < object.material->size.x * object.material->size.y / 3; i++) {
+        Vec4f a = object.transformed_vertices[i * 3 + 0];
+        Vec4f b = object.transformed_vertices[i * 3 + 1];
+        Vec4f c = object.transformed_vertices[i * 3 + 2];
 
-    // MODEL MATRIX
-    Mat4 m = mat4MultiplyM(&o->transform, &object_transform);
+        Vec2f tca = object.precomputed_tca[i];
+        Vec2f tcb = object.precomputed_tcb[i];
+        Vec2f tcc = object.precomputed_tcc[i];
 
-    // VIEW MATRIX
-    Mat4 v = r->camera_view;
-    Mat4 p = r->camera_projection;
-
-    for (int i = 0; i < o->mesh->indexes_count; i += 3) {
-        Vec3f *ver1 = &o->mesh->positions[o->mesh->pos_indices[i + 0]];
-        Vec3f *ver2 = &o->mesh->positions[o->mesh->pos_indices[i + 1]];
-        Vec3f *ver3 = &o->mesh->positions[o->mesh->pos_indices[i + 2]];
-
-        Vec2f tca = {0, 0};
-        Vec2f tcb = {0, 0};
-        Vec2f tcc = {0, 0};
-
-        if (o->material != 0) {
-            tca = tex_coords[o->mesh->tex_indices[i + 0]];
-            tcb = tex_coords[o->mesh->tex_indices[i + 1]];
-            tcc = tex_coords[o->mesh->tex_indices[i + 2]];
-        }
-
-        Vec4f a = {ver1->x, ver1->y, ver1->z, 1};
-        Vec4f b = {ver2->x, ver2->y, ver2->z, 1};
-        Vec4f c = {ver3->x, ver3->y, ver3->z, 1};
-
-        a = mat4MultiplyVec4(&a, &m);
-        b = mat4MultiplyVec4(&b, &m);
-        c = mat4MultiplyVec4(&c, &m);
-
-        Vec3f normal = o->mesh->normals[i];
-
+        // Use precomputed face normals
+        Vec3f normal = object.face_normals[i];
         Vec3f light = vec3Normalize((Vec3f){-8, -5, 5});
         float diffuseLight = (1.0 + vec3Dot(normal, light)) * 0.5;
         diffuseLight = MIN(1.0, MAX(diffuseLight, 0));
 
-        a = mat4MultiplyVec4(&a, &v);
-        b = mat4MultiplyVec4(&b, &v);
-        c = mat4MultiplyVec4(&c, &v);
-
-        a = mat4MultiplyVec4(&a, &p);
-        b = mat4MultiplyVec4(&b, &p);
-        c = mat4MultiplyVec4(&c, &p);
-
-        // Triangle is completely behind camera
-        if (a.z > 0 && b.z > 0 && c.z > 0)
-            continue;
-
-        // convert to device coordinates by perspective division
+        // Convert to device coordinates by perspective division
         a.w = 1.0 / a.w;
         b.w = 1.0 / b.w;
         c.w = 1.0 / c.w;
@@ -198,14 +149,12 @@ int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
         int32_t w1_row = orient2d(c_s, a_s, minTriangle);
         int32_t w2_row = orient2d(a_s, b_s, minTriangle);
 
-        if (o->material != 0) {
-            tca.x /= a.z;
-            tca.y /= a.z;
-            tcb.x /= b.z;
-            tcb.y /= b.z;
-            tcc.x /= c.z;
-            tcc.y /= c.z;
-        }
+        tca.x /= a.z;
+        tca.y /= a.z;
+        tcb.x /= b.z;
+        tcb.y /= b.z;
+        tcc.x /= c.z;
+        tcc.y /= c.z;
 
         for (int16_t y = minY; y < maxY; y++, w0_row += B12, w1_row += B20, w2_row += B01) {
             int32_t w0 = w0_row;
@@ -213,7 +162,6 @@ int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
             int32_t w2 = w2_row;
 
             for (int32_t x = minX; x < maxX; x++, w0 += A12, w1 += A20, w2 += A01) {
-
                 if ((w0 | w1 | w2) < 0)
                     continue;
 
@@ -226,37 +174,18 @@ int renderObject(Mat4 object_transform, Renderer *r, Renderable ren) {
 
                 depth_write(r->backend->getZetaBuffer(r, r->backend), x + y * scrSize.x, 1 - depth);
 
-                if (o->material != 0) {
-                    // Texture lookup
+                // Image lookup
+                float textCoordx = -(w0 * tca.x + w1 * tcb.x + w2 * tcc.x) * areaInverse * depth;
+                float textCoordy = -(w0 * tca.y + w1 * tcb.y + w2 * tcc.y) * areaInverse * depth;
 
-                    float textCoordx = -(w0 * tca.x + w1 * tcb.x + w2 * tcc.x) * areaInverse * depth;
-                    float textCoordy = -(w0 * tca.y + w1 * tcb.y + w2 * tcc.y) * areaInverse * depth;
-
-                    Pixel text = texture_readF(o->material->texture, (Vec2f){textCoordx, textCoordy});
-#if DEBUG
-                    // show_pixel(textCoordx, textCoordy, text.a, text.b, text.g, text.r);
-#endif
-
-                    backendDrawPixel(r, &r->framebuffer, (Vec2i){x, y}, text, diffuseLight);
-                } else {
-                    Pixel pixel;
-                    pixel.a = 255;
-                    pixel.b = 255;
-                    pixel.g = 0;
-                    pixel.r = 255;
-                    backendDrawPixel(r, &r->framebuffer, (Vec2i){x, y}, pixel, diffuseLight);
-                }
+                Pixel text = image_readF(object.material->data, (Vec2f){textCoordx, textCoordy});
+                backendDrawPixel(r, &r->framebuffer, (Vec2i){x, y}, text, diffuseLight);
             }
         }
     }
 
-    // DEBUG: delete object normals so they are recalculated every render cycle for performance testing
-    // free(o->mesh->normals);
-    // o->mesh->normals = NULL;
-
     return 0;
 }
-
 
 int rendererInit(Renderer *r, Vec2i size, Backend *backend) {
     renderingFunctions[RENDERABLE_SPRITE] = &renderSprite;
@@ -271,26 +200,26 @@ int rendererInit(Renderer *r, Vec2i size, Backend *backend) {
     r->backend->init(r, r->backend, (Vec4i){0, 0, 0, 0});
 
     int e = 0;
-    e = texture_init(&(r->framebuffer), size, backend->getFramebuffer(r, backend));
+    e = image_init(&(r->framebuffer), size, backend->getFramebuffer(r, backend));
     if (e)
         return e;
 
     return 0;
 }
 
-int rendererRender(Renderer *r) {
+int rendererRender(Renderer * r) {
 
     int pixels = r->framebuffer.size.x * r->framebuffer.size.y;
-    memset(r->backend->getZetaBuffer(r, r->backend), 0, pixels * sizeof(PingoDepth));
+    memset(r->backend->getZetaBuffer(r,r->backend), 0, pixels * sizeof (PingoDepth));
 
     r->backend->beforeRender(r, r->backend);
 
-    // get current framebuffer from backend
-    r->framebuffer.framebuffer = r->backend->getFramebuffer(r, r->backend);
+    //get current framebuffer from backend
+    r->framebuffer.image = r->backend->getFramebuffer(r, r->backend);
 
-    // Clear draw buffer before rendering
+    //Clear draw buffer before rendering
     if (r->clear) {
-        memset(r->backend->getFramebuffer(r, r->backend), 0, pixels * sizeof(Pixel));
+        memset(r->backend->getFramebuffer(r,r->backend), 0, pixels * sizeof (Pixel));
     }
 
     renderScene(mat4Identity(), r, sceneAsRenderable(r->scene));

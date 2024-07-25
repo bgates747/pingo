@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "mesh.h"
 
 void calculateNormals(Mesh *mesh) {

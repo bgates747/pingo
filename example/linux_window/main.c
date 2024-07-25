@@ -50,7 +50,7 @@ Pixel * loadTexture(char * filename, Vec2i size) {
 //     object.mesh = &viking_mesh;
 
 //     Pixel * image = loadTexture("assets/viking.rgba", (Vec2i){1024,1024});
-// 	Texture tex;
+// 	Image tex;
 // 	texture_init(&tex, (Vec2i){1024, 1024},image);
 // 	Material m;
 // 	m.texture = &tex;
@@ -85,18 +85,18 @@ int main() {
     object.mesh = &viking_mesh;
     calculateNormals(object.mesh);
     Pixel *image = loadTexture("assets/viking.rgba", (Vec2i){1024, 1024});
-    Texture tex;
+    Image tex;
     texture_init(&tex, (Vec2i){1024, 1024}, image);
     Material m;
     m.texture = &tex;
     object.material = &m;
-    sceneAddRenderable(&s, object_as_renderable(&object));
+    sceneAddRenderable(&s, objectAsRenderable(&object));
 
     Object object1;
     object1.mesh = &viking_mesh;
     calculateNormals(object1.mesh);
     object1.material = &m;
-    sceneAddRenderable(&s, object_as_renderable(&object1));
+    sceneAddRenderable(&s, objectAsRenderable(&object1));
 
     float phi = 0;
     float degrees_per_frame = 1.0;
@@ -120,26 +120,30 @@ int main() {
     object1.transform = mat4MultiplyM(&t, &object1.transform);
 
     long long start_time = timeInMilliseconds();
+    int frame_count = 0;
 
     while (1) {
         // SCENE
         s.transform = mat4RotateY(radians(phi));
         phi += degrees_per_frame;
+        frame_count++;
 
         if (phi >= 360.0) {
             phi = fmod(phi, 360.0);
 
             long long end_time = timeInMilliseconds();
             long long elapsed = end_time - start_time;
-            printf("One complete revolution took %lld milliseconds\n", elapsed);
+            double millis_per_frame = (double)elapsed / frame_count;
+            double frames_per_second = 1000.0 / millis_per_frame;
 
-            // Restart the timer
+            printf("%d frames in %lld ms = %.2f ms / frame = %.2f fps\n", frame_count, elapsed, millis_per_frame, frames_per_second);
+
+            // Restart the timer and frame count
             start_time = timeInMilliseconds();
+            frame_count = 0;
         }
 
         rendererRender(&renderer);
         // usleep(40000);
     }
-
-    return 0;
 }

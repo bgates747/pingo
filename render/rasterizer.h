@@ -1,6 +1,6 @@
 #pragma once
 
-#include "texture.h"
+#include "image.h"
 #include "sprite.h"
 #include "renderable.h"
 
@@ -33,7 +33,7 @@ extern "C" {
  * @param src The source texture to draw.
  * @return int Returns 0 on success.
  */
-int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Texture *src);
+int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Image *src);
 
 /**
  * @brief Draws a texture pixel-perfectly to the renderer's framebuffer at the specified offset, doubling the size of each pixel.
@@ -43,7 +43,7 @@ int rasterizer_draw_pixel_perfect(Vec2i off, Renderer *r, Texture *src);
  * @param src The source texture to draw.
  * @return int Returns 0 on success.
  */
-int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Texture *src);
+int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Image *src);
 
 /**
  * @brief Applies a transformation matrix to the texture and draws the transformed texture onto the renderer's framebuffer.
@@ -53,7 +53,7 @@ int rasterizer_draw_pixel_perfect_doubled(Vec2i off, Renderer *r, Texture *src);
  * @param src The source texture to draw.
  * @return int Returns 0 on success.
  */
-int rasterizer_draw_transformed(Mat4 t, Renderer *r, Texture *src);
+int rasterizer_draw_transformed(Mat4 t, Renderer *r, Image *src);
 
 #ifdef __cplusplus
 }

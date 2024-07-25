@@ -55,13 +55,13 @@ int main(){
     object.mesh = &viking_mesh;
 
     Pixel * image = loadTexture("assets/viking.rgba", (Vec2i){1024,1024});
-	Texture tex;
+	Image tex;
 	texture_init(&tex, (Vec2i){1024, 1024},image);
 	Material m;
 	m.texture = &tex;
 	object.material = &m;
 
-    sceneAddRenderable(&s, object_as_renderable(&object));
+    sceneAddRenderable(&s, objectAsRenderable(&object));
 
     float phi = 0;
     Mat4 t;

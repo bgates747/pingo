@@ -1,10 +1,22 @@
 #pragma once
 
-#include "texture.h"
+#ifndef MATERIAL_H
+#define MATERIAL_H
 
-/**
- * @brief Represents a material with an associated texture.
- */
+#include "image.h"  
+#include "../math/vec2.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Material {
-    Texture *texture; ///< Pointer to the texture associated with the material.
+    Vec2i size;                   ///< Dimensions of the texture image bitmap.
+    Image *data;                  ///< Pointer to texture image data.
 } Material;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // MATERIAL_H

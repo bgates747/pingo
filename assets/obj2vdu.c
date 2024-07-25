@@ -171,7 +171,7 @@ int write_object(FILE* fout) {
         num_vertexes+1, ftell(fout)-start);
 
     start = ftell(fout);
-    printf("Texture coordinates start at file position %lu\n", ftell(fout));
+    printf("Image coordinates start at file position %lu\n", ftell(fout));
     write_uvalue(fout, zero); // dummy u
     write_uvalue(fout, zero); // dummy v
     for (int i = 0; i < num_texture_coords; i++) {
@@ -224,7 +224,7 @@ int write_object(FILE* fout) {
         cnt, ftell(fout)-start);
 
     start = ftell(fout);
-    printf("Texture indexes start at file position %lu\n", ftell(fout));
+    printf("Image indexes start at file position %lu\n", ftell(fout));
     cnt = 0;
     for (int i = 0; i < num_faces; i++) {
         Face* face = &faces[i];
