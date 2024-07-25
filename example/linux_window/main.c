@@ -83,20 +83,20 @@ int main() {
 
     Object object;
     object.mesh = &viking_mesh;
-    calculateNormals(object.mesh);
+    // calculateNormals(object.mesh);
     Pixel *image = loadTexture("assets/viking.rgba", (Vec2i){1024, 1024});
     Texture tex;
     texture_init(&tex, (Vec2i){1024, 1024}, image);
     Material m;
     m.texture = &tex;
     object.material = &m;
-    sceneAddRenderable(&s, objectAsRenderable(&object));
+    sceneAddRenderable(&s, object_as_renderable(&object));
 
     Object object1;
     object1.mesh = &viking_mesh;
-    calculateNormals(object1.mesh);
+    // calculateNormals(object1.mesh);
     object1.material = &m;
-    sceneAddRenderable(&s, objectAsRenderable(&object1));
+    sceneAddRenderable(&s, object_as_renderable(&object1));
 
     float phi = 0;
     float degrees_per_frame = 1.0;
