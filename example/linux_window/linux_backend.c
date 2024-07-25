@@ -29,7 +29,7 @@ void init_x() {
     unsigned long black = BlackPixel(dis, screen);
     unsigned long white = WhitePixel(dis, screen);
     win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0, totalSize.x, totalSize.y, 5, white, black);
-    XSetStandardProperties(dis, win, "My Window", "HI!", None, NULL, 0, NULL);
+    XSetStandardProperties(dis, win, "linux_window", "HI!", None, NULL, 0, NULL);
     XSelectInput(dis, win, ExposureMask | KeyPressMask);
     XMapWindow(dis, win);
     gc = XCreateGC(dis, win, 0, 0);
@@ -74,7 +74,7 @@ void linuxBackEndInit(LinuxBackEnd *linuxBackend, Vec2i size) {
     linuxBackend->backEnd.afterRender = afterRender;
     linuxBackend->backEnd.getFrameBuffer = getFrameBuffer;
     linuxBackend->backEnd.getZetaBuffer = getZetaBuffer;
-    linuxBackend->backEnd.drawPixel = NULL;
+    linuxBackend->backEnd.drawPixel = 0;
 
     zetaBuffer = malloc(size.x * size.y * sizeof(PingoDepth));
     frameBuffer = malloc(size.x * size.y * sizeof(Pixel));

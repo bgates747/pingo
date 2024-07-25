@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(pingo)
 
-# set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Pingo rendering library
 file(GLOB_RECURSE render_src render/*.h render/*.c)

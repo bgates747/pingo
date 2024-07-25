@@ -94,8 +94,9 @@ int main() {
 
     Object object1;
     object1.mesh = &viking_mesh;
-    // calculateNormals(object1.mesh);
     object1.material = &m;
+    // calculateNormals(object1.mesh);
+    // object1.material = &m;
     sceneAddRenderable(&s, object_as_renderable(&object1));
 
     float phi = 0;
