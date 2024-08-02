@@ -124,8 +124,9 @@ int main() {
     int frame_count = 0;
 
     while (1) {
-        // SCENE
+        // ROTATE SCENE
         s.transform = mat4RotateY(radians(phi));
+
         phi += degrees_per_frame;
         frame_count++;
 
